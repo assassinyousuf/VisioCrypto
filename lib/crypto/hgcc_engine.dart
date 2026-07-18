@@ -84,8 +84,10 @@ class HgccEngine {
       evolveSynchronous();
     }
 
-    // 3. Discrete Prime Chaos Map: X_{n+1} = 4 * X_n * (P - X_n) (mod P)
-    _chaos = (bigFour * _chaos * (primeP - _chaos)) % primeP;
+    // 3. Discrete Prime Chaos Map with Linear Perturbation: X_{n+1} = (4 * X_n * (P - X_n) + L) (mod P)
+    // Adding the Galois LFSR state L breaks any short-cycle traps and guarantees a minimum period of 2^64 - 1
+    final lfsrBig = BigInt.from(_lfsr);
+    _chaos = (bigFour * _chaos * (primeP - _chaos) + lfsrBig) % primeP;
 
     // 4. Bit-Folding Mixer
     final lfsrByte = ((_lfsr >> 56) ^ (_lfsr >> 32) ^ (_lfsr >> 8)) & 0xFF;
