@@ -9,6 +9,8 @@
 \usepackage{hyperref}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -160,6 +162,48 @@ Standard file deletion on modern flash storage is often insecure. Due to wear le
 \section{The HGCC Algorithm}
 The HGCC algorithm deliberately avoids using Substitution Boxes (S-Boxes) to reduce the risk of cache-timing attacks \cite{kocher1996}. It uses a cascade of the three mathematical generators described previously.
 
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=1.5cm and 1cm,
+    block/.style={draw, rectangle, minimum height=2.5em, minimum width=8em, fill=blue!10, rounded corners, align=center},
+    round/.style={draw, circle, inner sep=2pt, fill=yellow!20},
+    source/.style={draw, rectangle, fill=gray!20, minimum width=10em, minimum height=2em, align=center},
+    arrow/.style={draw, -latex, thick}
+]
+    % Nodes
+    \node[source] (mk) {64-byte Master Key};
+    
+    \node[block, below=1cm of mk] (hkdf) {HKDF-SHA256\\(Domain Separation)};
+    
+    \node[block, below left=1.2cm and 0.5cm of hkdf] (hgcc) {HGCC Cipher Engine\\(LFSR, CA, Chaos Map)};
+    \node[block, below right=1.2cm and 0.5cm of hkdf] (hmac) {HMAC-SHA256\\Authentication};
+    
+    \node[block, below=1.2cm of hgcc] (mix) {Bit-Folding Mixer\\(XOR, Mod 256)};
+    \node[round, below=1.2cm of mix] (encxor) {$\oplus$};
+    
+    \node[left=1.5cm of encxor] (pt) {Plaintext Byte ($P_i$)};
+    \node[below=1.2cm of encxor] (ct) {Ciphertext Byte ($C_i$)};
+    
+    % Connections
+    \path[arrow] (mk) -- (hkdf);
+    \path[arrow] (hkdf) -| node[above, pos=0.7] {$K_{enc}$} (hgcc);
+    \path[arrow] (hkdf) -| node[above, pos=0.7] {$K_{mac}$} (hmac);
+    
+    \path[arrow] (hgcc) -- (mix);
+    \path[arrow] (mix) -- node[right] {$K_i$} (encxor);
+    \path[arrow] (pt) -- (encxor);
+    \path[arrow] (encxor) -- (ct);
+    
+    \draw[arrow] (ct.south) -- ++(0,-0.4) -| (hmac.south);
+    \node[below=1.5cm of hmac] (tag) {HMAC-SHA256 Tag};
+    \path[arrow] (hmac) -- (tag);
+
+\end{tikzpicture}
+\caption{The HGCC-AEAD architecture. The HKDF splits the Master Key into distinct keys for encryption ($K_{enc}$) and message authentication ($K_{mac}$). Keystream generation combines XOR operations with modular addition, concluding with an HMAC-SHA256 tag for AEAD integrity.}
+\label{fig:hgcc_aead}
+\end{figure}
+
 \subsection{Initialization and Output Generation}
 Algorithm \ref{alg:init} details the initialization process. The system runs a 3,072-iteration ``burn-in'' phase before encrypting any data. This step is designed to remove statistical biases from the initial state of the generators.
 
@@ -263,6 +307,44 @@ A common vulnerability in LFSR-based nonlinear generators is their susceptibilit
 
 To mitigate this, HGCC utilizes a ``Dimensional Collapse'' combining function that mixes two distinct algebraic groups: XOR (addition in $\text{GF}(2)$) and modular addition (addition in $\mathbb{Z}_{256}$). This construction prevents the keystream from being represented as a pure system of linear equations. Converting the carry-bits of modular addition into a Boolean system requires an exponential number of clauses in Conjunctive Normal Form (CNF), leading to ``variable explosion'' in SAT solvers and preventing the use of standard linear cryptanalysis techniques \cite{mariot2024}.
 
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=1cm and 1.5cm,
+    cell/.style={draw, rectangle, minimum size=2.2em, fill=green!10, align=center},
+    op/.style={draw, circle, inner sep=3pt, fill=red!10},
+    arrow/.style={draw, -latex, thick}
+]
+    % Generation t cells
+    \node[cell] (c_center) {$C_t[i]$};
+    \node[cell, left=1cm of c_center] (c_left) {$C_t[i-1]$};
+    \node[cell, right=1cm of c_center] (c_right) {$C_t[i+1]$};
+    
+    % Label Generation t
+    \node[left=0.8cm of c_left, font=\bfseries] {Generation $t$};
+    
+    % Operators
+    \node[op, below=1.2cm of $(c_center.south)!0.5!(c_right.south)$] (or_op) {$\lor$};
+    \node[op, below=2.4cm of c_left] (xor_op) {$\oplus$};
+    
+    % Generation t+1 cell
+    \node[cell, below=3.6cm of c_center] (c_next) {$C_{t+1}[i]$};
+    \node[left=2.8cm of c_next, font=\bfseries] {Generation $t+1$};
+    
+    % Connections
+    \path[arrow] (c_center.south) -- ++(0,-0.4) -| (or_op.north);
+    \path[arrow] (c_right.south) -- ++(0,-0.4) -| (or_op.north);
+    
+    \path[arrow] (c_left.south) -- (xor_op.north);
+    \path[arrow] (or_op.west) -| node[above, pos=0.8] {} (xor_op.east);
+    
+    \path[arrow] (xor_op.south) -- ++(0,-0.4) -| (c_next.north);
+
+\end{tikzpicture}
+\caption{The Byte-Wise Rule 30 Cellular Automaton Evolution. A center cell state at generation $t+1$ is updated based on its own state and its neighbors at generation $t$ using the relation $C_{t+1}[i] = C_t[i-1] \oplus (C_t[i] \lor C_t[i+1])$.}
+\label{fig:rule30_evolution}
+\end{figure}
+
 \subsection{Empirical Statistical Validation (NIST SP 800-22)}
 To validate the HGCC keystream, we performed a comprehensive battery of tests using the NIST SP 800-22 suite on a 1 GB sample generated from 100 independent seeds. The keystream achieved a mean Shannon entropy of $H = 7.999842$. Critical tests including the Frequency (Monobit) test, the Block Frequency test, and the Runs test all yielded p-values exceeding the $\alpha = 0.01$ significance threshold (e.g., $p_{\text{monobit}} = 0.5421$, $p_{\text{runs}} = 0.6189$), indicating that the HGCC output is statistically indistinguishable from a true random source.
 
@@ -313,54 +395,7 @@ The European General Data Protection Regulation (GDPR) enforces a user's right t
 \section{Conclusion}
 The practice of cloud hosts scraping user files for AI training requires new approaches to document privacy. We introduced VisioCrypt, a mobile application that provides zero-overhead, client-side encryption. By replacing standard block ciphers with the HGCC stream cipher---which combines a Galois LFSR, a cellular automaton, and a discrete chaos map---the system secures documents against both automated text extraction and offline cryptanalysis. It uses standard secure key derivation techniques (Argon2id and hardware biometrics) and implements a chunked streaming architecture to manage extremely large files on mobile hardware. We demonstrated its post-quantum viability against Grover's algorithm and its strict adherence to modern compliance frameworks. Future work will involve optimizing the Rule 30 evaluation steps using parallel GPU processing to improve encryption speeds on larger enterprise server systems.
 
-\begin{thebibliography}{15}
-\bibitem{shokri2015}
-Shokri, R., Shmatikov, V.: Privacy-preserving deep learning. In: Proceedings of the 22nd ACM SIGSAC Conference on Computer and Communications Security, pp. 1310--1321 (2015)
-
-\bibitem{carlini2021}
-Carlini, N., et al.: Extracting training data from large language models. In: 30th USENIX Security Symposium (USENIX Security 21), pp. 2633--2650 (2021)
-
-\bibitem{mironov2002}
-Mironov, I.: (not so) random shuffles of rc4. In: Advances in Cryptology---CRYPTO 2002, pp. 304--323. Springer (2002)
-
-\bibitem{bernstein2008}
-Bernstein, D.J.: ChaCha, a variant of Salsa20. In: Workshop Record of SASC, vol. 8, pp. 3--5 (2008)
-
-\bibitem{rueppel1986}
-Rueppel, R.A.: Analysis and design of stream ciphers. Springer (1986)
-
-\bibitem{baptista1998}
-Baptista, M.S.: Cryptography with chaos. Physics letters A, 240(1-2), 50--54 (1998)
-
-\bibitem{kocarev2001}
-Kocarev, L.: Chaos-based cryptography: a brief overview. IEEE Circuits and Systems Magazine, 1(3), 6--21 (2001)
-
-\bibitem{wolfram1983}
-Wolfram, S.: Statistical mechanics of cellular automata. Reviews of modern physics, 55(3), 601 (1983)
-
-\bibitem{golomb1981}
-Golomb, S.W.: Shift register sequences. Aegean Park Press (1981)
-
-\bibitem{pinto2019}
-Pinto, S., Santos, N.: Demystifying ARM TrustZone: A comprehensive survey. ACM Computing Surveys (CSUR), 51(6), 1--36 (2019)
-
-\bibitem{biryukov2016}
-Biryukov, A., Dinu, D., Khovratovich, D.: Argon2: New generation of memory-hard functions for password hashing and other applications. In: 2016 IEEE European Symposium on Security and Privacy (EuroS\&P), pp. 292--302. IEEE (2016)
-
-\bibitem{kocher1996}
-Kocher, P.C.: Timing attacks on implementations of Diffie-Hellman, RSA, DSS, and other systems. In: Advances in Cryptology---CRYPTO'96, pp. 104--113. Springer (1996)
-
-\bibitem{grover1996}
-Grover, L.K.: A fast quantum mechanical algorithm for database search. In: STOC, pp. 212--219 (1996)
-
-\bibitem{settle2010}
-Settle, J.: Linearization of nonlinear generators via cellular automata. arXiv:1005.0086 (2010)
-
-\bibitem{mariot2024}
-Mariot, L.: On the cryptographic security of cellular automata-based PRNGs. arXiv:2405.02875 (2024)
-
-\bibitem{hossain2026visiolock}
-Hossain, M.Y., Sajeeb, S.S.H., Ausaf, S.M.N., Rahman, M.M., Saharaz, N.H., Based, M.A.: VisioLock: Cross-media secure image transmission via audio-domain encoding and device-bound cryptography. Taylor \& Francis Book Chapter (2026)
-\end{thebibliography}
+\bibliographystyle{splncs04}
+\bibliography{references}
 
 \end{document}
