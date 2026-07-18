@@ -146,8 +146,8 @@ VisioCrypt is built with the Flutter framework. Flutter allows developers to wri
 \subsection{Key Derivation}
 The application operates on a zero-trust model and does not store cryptographic keys on the local disk. The 64-byte Master Key (MK) is generated entirely during runtime using one of two methods, depending on the user's security preferences.
 
-\subsubsection{Hardware-Backed Key Storage}
-This mode is designed to prevent offline attacks if the physical device is stolen. It utilizes the device's hardware-backed Keystore system (e.g., Android Keystore or iOS Secure Enclave \cite{pinto2019}). The Master Key is not stored in plain text but is derived from a 256-bit entropy source generated within the Trusted Execution Environment (TEE). Accessing this hardware-bound secret is gated by a system-level biometric prompt (Fingerprint/FaceID), ensuring the key material never leaves the secure hardware during the derivation process.
+\subsubsection{TEE-Backed Key Management Integration}
+To ensure the usability and security of the client-side system on commercial devices, VisioCrypt integrates with native TEE-backed storage architectures (e.g., Android Keystore and iOS Secure Enclave \cite{pinto2019}) following industry best practices. Rather than proposing a new hardware storage protocol, this integration ensures that the Master Key is derived from a 256-bit secure entropy source and gated by system-level biometric prompts (Fingerprint/FaceID), mitigating offline forensic extraction if the physical device is compromised.
 
 \subsubsection{Cross-Device Mode}
 For users who need to share encrypted files between different devices, the Master Key is derived from a standard password using Argon2id \cite{biryukov2016}. Argon2id is the current industry standard for memory-hard key derivation. Per current cryptographic recommendations, the application uses a 64 MB memory cost parameter ($m = 65536$ KiB), 4 iterations ($t = 4$), and 2 lanes ($p = 2$). This memory requirement limits the effectiveness of GPU-based dictionary attacks.
@@ -403,7 +403,23 @@ The Health Insurance Portability and Accountability Act (HIPAA) strictly governs
 
 \subsection{GDPR and the Right to Privacy}
 The European General Data Protection Regulation (GDPR) enforces a user's right to privacy and the right to be forgotten. The modern practice of automated AI scraping by cloud providers to train LLMs fundamentally violates the principle of informed consent. By employing the HGCC engine, users guarantee that their data cannot be parsed, cataloged, or ingested by automated data mining systems, returning the locus of data sovereignty to the end-user.
+\section{Discussion, Limitations, and Future Work}
+While VisioCrypt presents a viable, high-performance client-side security architecture, we explicitly document its limitations to guide future research and prevent unsafe production deployments.
 
+\subsection{Heuristic vs. Provably Secure Cryptography}
+The HGCC engine is a custom, heuristic pseudo-random number generator designed to explore non-algebraic cascades rather than act as a replacement for standardized symmetric ciphers. In cryptological engineering, custom designs are highly discouraged for production environments due to the lack of long-term peer analysis. We emphasize that VisioCrypt's client-side streaming and TEE integration framework is modular; developers seeking standardized compliance can easily swap the HGCC generator with a standardized cipher (e.g., ChaCha20 or AES-CTR).
+
+\subsection{Mathematical Conjectures on Keystream Periods}
+Our design couples the Galois LFSR state $L_n$ directly into the Prime Logistic Map update as a linear perturbation term to disrupt short-cycle attractors. While this heuristic coupling successfully breaks short-period traps in our empirical test runs, it is a conjecture and not a mathematically proven cycle theorem. Complex nonlinear feedback loops can exhibit chaotic dynamics that defy simple period lower-bounds. Formal algebraic proofs regarding the period length of this combined generator remain an open research challenge.
+
+\subsection{Cryptanalysis Requirements}
+Although the HGCC keystream successfully passes the statistical tests in the NIST SP 800-22 battery, passing statistical tests is merely a baseline requirement and does not prove cryptographic security. The generator has not yet undergone rigorous differential, linear, or algebraic cryptanalysis. Future work must investigate the Boolean nonlinearity of the combining function and the exact correlation immunity bounds to establish formal security proofs.
+
+\subsection{Physical and Operating System Attacks}
+Finally, the zero-trust model of VisioCrypt is bounded by the security of the host mobile operating system. If the mobile device's kernel is compromised (e.g., via root exploit), the encryption keys can be extracted from the active RAM segment of the Dart Isolate despite TEE-backed storage. Additionally, direct side-channel monitoring (such as differential power analysis) of the Prime Logistic Map's multiplication step represents an unaddressed hardware threat.
+
+\subsection{Alternative Target Cryptosystem Deployments}
+As a concrete demonstration of the platform's modularity, future versions of VisioCrypt will support selectable cryptographic backends, allowing users to toggle between the experimental HGCC cascade and standardized algorithms (e.g., ChaCha20-Poly1305). This ensures that while research into custom hybrid cascades continues, production deployments remain secure under established cryptographic standards.
 \section{Conclusion}
 Establishing verifiable user sovereignty in public cloud storage architectures requires transitioning confidentiality boundaries from the server to the client. We introduced VisioCrypt, a client-side document encryption framework designed for mobile operating systems. By implementing a hybrid keystream cascade combining a Galois LFSR, a cellular automaton, and a linear-perturbed Prime Logistic Map, the application achieves format-preserving, authenticated document encryption. Integrating hardware-backed biometrics (TEE Keystore) and Argon2id enables zero-trust key management. The application's chunked streaming model allows files of arbitrary size to be encrypted on resource-constrained devices within a 10 MB RAM boundary. Future work includes evaluating the keystream generator against differential power analysis and optimizing the cellular automaton updates utilizing mobile GPU compute shaders.
 
