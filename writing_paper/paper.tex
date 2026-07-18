@@ -40,8 +40,8 @@
 
 \begin{document}
 
-\title{VisioCrypt: A Zero-Overhead Client-Side Encryption System Using a Galois-Cellular Cascade to Prevent Data Scraping}
-\titlerunning{VisioCrypt: Zero-Overhead Galois-Cellular Encryption}
+\title{VisioCrypt: A TEE-Bound Client-Side Document Compliance Shield for Mobile Cloud Storage Platforms}
+\titlerunning{VisioCrypt: TEE-Bound Client-Side Encryption}
 
 \author{Anonymous Author(s)}
 \authorrunning{Anonymous}
@@ -50,9 +50,9 @@
 \maketitle
 
 \begin{abstract}
-Storing sensitive documents in the cloud introduces privacy risks from two primary sources: data scraping by platforms training Large Language Models (LLMs) and unauthorized access during data breaches. Server-side encryption and standard block ciphers often fall short in preventing these issues, as they require trusting the host and typically alter file sizes due to padding requirements. In this paper, we present VisioCrypt, a cross-platform mobile application built with the Flutter framework that provides near-zero-overhead, client-side encryption. The application uses an Authenticated Encryption with Associated Data (AEAD) construction powered by a custom stream cipher named the Hyper-Dimensional Galois-Cellular Cipher (HGCC). The HGCC algorithm combines a 64-bit Galois LFSR, a Rule 30 Cellular Automaton, and a Prime Logistic Map to generate a massive internal state exceeding 540 bits. It relies entirely on integer arithmetic to avoid the floating-point inconsistencies common in continuous chaotic cryptography. Key derivation is handled either through hardware-backed Keystore biometrics or the memory-hard Argon2id algorithm. We detail the application's architecture, its cryptographic foundations, and provide empirical test results showing its ability to process large files with minimal RAM usage through stateful chunked streaming. Empirical analysis of the keystream demonstrates optimal Shannon entropy ($H \approx 7.999842$), while the AEAD construction guarantees ciphertext integrity. Furthermore, the system remains mathematically resistant to post-quantum Grover search algorithms, side-channel timing attacks, and SAT solver analysis.
+Storing sensitive documents in third-party cloud architectures exposes organizations to compliance liabilities under GDPR and HIPAA, and privacy risks from automated parser sweeps. Standard cloud-based security models rely heavily on provider-managed server-side encryption, leaving data vulnerable to insider threats and platform-level content harvesting. In this paper, we present VisioCrypt, a cross-platform mobile application designed to enforce a zero-trust confidentiality boundary directly on the user's device before data transmission. VisioCrypt implements an Authenticated Encryption with Associated Data (AEAD) streaming construction utilizing a hybrid pseudo-random number generator (PRNG) named the Hyper-Dimensional Galois-Cellular Cipher (HGCC). The HGCC engine couples a 64-bit Galois LFSR, a 512-bit Rule 30 Cellular Automaton, and a Prime Logistic Map with a linear perturbation coupling term to mathematically eliminate short-cycle traps over finite fields. Key derivation is integrated directly with hardware-backed Trusted Execution Environments (TEE) and the memory-hard Argon2id algorithm. Through a multithreaded background streaming architecture, VisioCrypt handles gigabyte-scale documents with a persistent memory footprint under 10 MB. We detail the system's architecture, verify the statistical randomness of its keystream, and analyze its classical and quantum security margins under Grover's search and SAT solver algebraic attacks.
 
-\keywords{Cloud Privacy \and Stream Ciphers \and Cellular Automata \and Flutter \and Authenticated Encryption \and Argon2id.}
+\keywords{Cloud Confidentiality \and Stream Ciphers \and TEE Integration \and Cellular Automata \and Flutter \and Compliance.}
 \end{abstract}
 
 \section{Introduction}
@@ -65,17 +65,18 @@ The core vulnerability in this ecosystem is a fundamental problem of trust. In t
 \subsection{Data Breaches and Hardware Attacks}
 The traditional threat model in cryptography focuses on unauthorized interception and storage compromise. Cloud data breaches often lead to the mass exposure of unencrypted or poorly encrypted files \cite{shokri2015}. In addition to remote breaches, physical device theft introduces the risk of hardware-level key extraction. Attackers can use forensic techniques, including power analysis, electromagnetic emissions monitoring, or direct side-channel probing, to extract cryptographic keys from memory registers. Standard password-based encryption methods are frequently vulnerable to offline dictionary attacks. If a user selects a weak password, attackers can test millions of guesses rapidly using parallel Graphical Processing Units (GPUs) or specialized Application-Specific Integrated Circuits (ASICs).
 
-\subsection{Automated AI Scraping}
-A more recent privacy concern involves the routine scanning of user data by cloud hosting providers. Many platforms use automated web scrapers to collect training data for Large Language Models (LLMs) and other machine learning systems. Studies have shown that deep neural networks can memorize segments of their training data. If a sensitive document is included in an LLM's training set, adversaries may be able to extract that exact text later by feeding the model specific prompts \cite{carlini2021}. Therefore, relying solely on commercial cloud storage policies or server-side encryption---where the provider holds the decryption keys---is insufficient for maintaining strict data confidentiality.
+\subsection{Automated Data Harvesting and Parsing Sweeps}
+A modern privacy concern involves platform-level scanning of user data by cloud hosting providers. Many cloud platforms deploy automated parsers and content-indexing engines to sweep user files. In some contexts, this data is ingested as training corpora for large-scale machine learning systems and Large Language Models (LLMs). Research shows that neural network models can memorize segments of their training inputs, enabling potential extraction of sensitive plaintexts through targeted prompts \cite{carlini2021}. Relying on administrative policies or server-side encryption (where the host controls the decryption keys) fails to establish a mathematically verifiable confidentiality boundary. Client-side, length-preserving encryption (LP-CSE) before upload addresses this issue by rendering the stored files completely opaque to the hosting provider and its automated indexers.
 
-To provide a practical alternative, we developed VisioCrypt, an architecture-agnostic, cross-platform mobile application. VisioCrypt uses an Authenticated Encryption with Associated Data (AEAD) construction over a custom stream cipher called the Hyper-Dimensional Galois-Cellular Cipher (HGCC). By combining three discrete mathematical generators---including a 64-bit Galois LFSR and a synchronous Rule 30 Cellular Automaton---the app ensures that encrypted files maintain their exact structural signature while guaranteeing immunity against ciphertext malleability. This approach hides the data from AI scrapers while resisting both offline brute-force attacks and standard cryptanalysis on platforms lacking hardware-accelerated AES instructions.
+To address these security challenges, we present VisioCrypt, a cross-platform mobile application that establishes a zero-trust confidentiality boundary. VisioCrypt combines TEE-backed biometric key management and Argon2id with a streaming AEAD construction. The underlying keystream engine, HGCC, uses a cascade of three distinct mathematical structures: a 64-bit Galois LFSR, a circular Rule 30 Cellular Automaton, and a Prime Logistic Map. A linear perturbation term couples the LFSR state to the chaos map, preventing short-cycle trap states. This design guarantees length-preserving ciphertext outputs while ensuring strong security guarantees and competitive throughput on mobile platforms lacking native hardware-accelerated cryptography.
 
 The main contributions of this paper are:
 \begin{enumerate}
-    \item A hybrid stream cipher design (HGCC) combining Galois fields, cellular automata, and discrete chaotic maps.
-    \item Explicit engineering blueprints for implementing the HGCC in the Dart programming language using isolated memory threading.
-    \item Empirical performance benchmarking metrics on mobile ARM architectures demonstrating throughput advantages over software-only AES implementations.
-    \item A formal security analysis detailing post-quantum security margins, correlation immunity, and algebraic attack resistance.
+    \item A hybrid keystream generator (HGCC) combining linear, cellular, and chaotic maps with a perturbation coupling to guarantee cycle length.
+    \item System integration designs linking hardware-backed TEE Keystores and memory-hard key derivation (Argon2id) directly to the cipher initialization.
+    \item Explicit implementation details in Dart using background Isolates to process files of arbitrary sizes in a low-RAM environment.
+    \item Empirical performance benchmarking on mobile ARM devices, showing throughput advantages against pure-software implementations of standard ciphers.
+    \item A rigorous security evaluation assessing quantum search margins under Grover's algorithm, SAT solver algebraic attack complexity, and side-channel immunity.
 \end{enumerate}
 
 \section{Related Work}
@@ -292,12 +293,18 @@ int nextByte() {
 \subsection{Dart Isolates and Background Threading}
 Cryptographic operations are CPU-intensive. Running the encryption loop on the main application thread causes the user interface to freeze. VisioCrypt resolves this by using Dart ``Isolate`` structures. Isolates are independent execution threads that do not share memory with the main process. The application spawns a background Isolate, passes the file path and the Master Key via a message port, and performs the heavy HGCC computations without interrupting the application's visual frame rate.
 
-\section{Post-Quantum and Advanced Security Analysis}
+\section{Security Analysis and Evaluation}
 
-\subsection{Grover's Algorithm and Post-Quantum Security}
-With the rapid advancement of quantum computing, classical encryption algorithms face theoretical obsolescence. Grover's algorithm allows a quantum computer to search an unsorted database of size $N$ in $\mathcal{O}(\sqrt{N})$ time \cite{grover1996}. For symmetric cryptography, this effectively halves the bit-length of the key space. A standard 128-bit AES key provides only 64 bits of post-quantum security, which is considered insufficient.
+\subsection{Quantum Search Complexity and State Space Analysis}
+With the rapid advancement of quantum computing, classical symmetric encryption algorithms face theoretical threats. Grover's algorithm allows a quantum computer to search an unsorted database of size $N$ in $\mathcal{O}(\sqrt{N})$ time \cite{grover1996}, which halves the security margin of symmetric keys and states. 
 
-VisioCrypt fundamentally operates on a 512-bit (64-byte) Master Key derived via Argon2id. Under a quantum attack utilizing Grover's algorithm, the effective security margin of the keystream generator state is reduced to $2^{256}$ operations, which remains well beyond the limits of physical feasibility. The 512-bit HGCC state ensures that once a key is derived, the keystream itself remains immune to quantum-accelerated exhaustive search or state-reconstruction attacks for the duration of the session.
+VisioCrypt operates on a 512-bit (64-byte) Master Key derived via Argon2id. Under Grover's search, the effective security margin of the master key is $2^{256}$ operations, which remains secure. 
+
+The internal state of the HGCC generator comprises three components: a 64-bit Galois LFSR state, a 512-bit Cellular Automaton array, and a 53-bit Prime Logistic Map state, yielding an aggregate internal state space of 629 bits. If targeted jointly, a quantum search for the complete state requires $\mathcal{O}(\sqrt{2^{629}}) \approx 2^{314.5}$ steps. To prevent divide-and-conquer attacks (e.g., searching the 64-bit LFSR or 53-bit chaos states independently), the combining function nonlinearly mixes all three outputs via modular addition:
+\begin{equation}
+K = (L_{byte} \oplus C_t[\text{counter} \pmod{64}]) + X_{byte} \pmod{256}
+\end{equation}
+The inclusion of modular addition introduces carry-bit propagation across the state space, preventing an adversary from isolating the linear LFSR components or the quadratic chaotic components. The resulting system of equations forces joint estimation of all three states, preserving the security margin against quantum-accelerated exhaustive search.
 
 \subsection{Key Space and Salt Implementation}
 Beyond the primary key space, we must account for key-reuse vulnerabilities (such as Two-Time Pad attacks). VisioCrypt mitigates this by generating a random 16-byte salt using the operating system's secure random number generator (e.g., Android SecureRandom) for every encryption event. This salt is prepended to the output file. Because the salt acts as an input during the Argon2id key derivation process, encrypting the exact same file twice with the identical password results in two entirely distinct Master Keys and divergent ciphertexts.
@@ -362,21 +369,23 @@ We tested VisioCrypt on an Android device equipped with a Snapdragon 8 Gen 2 pro
 VisioCrypt handles this by reading files iteratively in 64 KB chunks using Dart's asynchronous data streams. The application reads a chunk, encrypts it in memory, writes it to the disk, and immediately flags the buffer for Garbage Collection. During testing, the application successfully encrypted files exceeding 10 GB while keeping memory usage firmly under 10 MB.
 
 \subsection{Throughput Benchmarking Methodology}
-Throughput was measured on a Xiaomi Redmi Note 13 Pro (Snapdragon 8 Gen 2) utilizing AOT-compiled Dart code. The benchmark was conducted using a 500 MB test file read from internal UFS 3.1 storage in 64 KB chunks. To ensure accuracy, the file was encrypted 10 times, and the average throughput was calculated after excluding the initial cache-warming run. The results demonstrate that the HGCC algorithm maintains highly competitive encryption speeds, outperforming software-only AES-256 implementations on the same hardware.
+Throughput was measured on a Xiaomi Redmi Note 13 Pro (Snapdragon 8 Gen 2) utilizing AOT-compiled Dart code. The benchmark was conducted using a 500 MB test file read from internal UFS 3.1 storage in 64 KB chunks. To ensure accuracy, the file was encrypted 10 times, and the average throughput was calculated after excluding the initial cache-warming run. 
 
-\begin{table}[h]
+Crucially, the benchmark evaluated pure-software implementations written in Dart. In cross-platform development (e.g., Flutter), writing native TEE/NDK bindings for every target OS introduces significant maintenance overhead and security risks. Therefore, a pure-software implementation that runs efficiently is highly desirable. On platforms lacking hardware-accelerated AES cryptoprocessors (or when running sandboxed code without hardware bindings), standard block ciphers suffer severe performance penalties. The benchmark shows that HGCC outperforms pure-software AES-256 on the same hardware.
+
+\begin{table}[H]
 \centering
 \caption{Encryption Throughput on Mobile ARM Architecture (Snapdragon 8 Gen 2).}
 \begin{tabular}{lcc}
 \toprule
-\textbf{Cipher Algorithm} & \textbf{Architecture Type} & \textbf{Avg. Throughput (MB/s)} \\ \midrule
-AES-256 (Software)        & Block Cipher               & $\approx 180$                   \\
-ChaCha20                  & ARX Stream Cipher           & $\approx 250$                   \\
-VisioCrypt (HGCC)         & Galois-Cellular Stream     & $\approx 220$                   \\ \bottomrule
+\textbf{Cipher Algorithm} & \textbf{Implementation} & \textbf{Avg. Throughput (MB/s)} \\ \midrule
+AES-256 (Software)        & Pure-Dart (Block Cipher)   & $\approx 180$                   \\
+ChaCha20                  & Pure-Dart (ARX Stream)     & $\approx 250$                   \\
+VisioCrypt (HGCC)         & Pure-Dart (Galois-Cellular)& $\approx 220$                   \\ \bottomrule
 \end{tabular}
 \end{table}
 
-While slightly slower than ChaCha20 due to the complex discrete prime mathematical mapping step, HGCC achieves processing speeds well beyond standard solid-state drive (SSD) I/O write limits, ensuring that the cryptography is never the bottleneck in the file save process.
+While slightly slower than the highly optimized ARX structure of ChaCha20 due to the modular arithmetic of the Prime Logistic Map, HGCC achieves high performance in a single-threaded environment, making it a viable alternative for software-only mobile deployments.
 
 \subsection{Storage Overhead}
 The cipher produces exactly one byte of ciphertext for every byte of plaintext. The total storage overhead per file is 48 bytes, consisting of:
@@ -396,7 +405,7 @@ The Health Insurance Portability and Accountability Act (HIPAA) strictly governs
 The European General Data Protection Regulation (GDPR) enforces a user's right to privacy and the right to be forgotten. The modern practice of automated AI scraping by cloud providers to train LLMs fundamentally violates the principle of informed consent. By employing the HGCC engine, users guarantee that their data cannot be parsed, cataloged, or ingested by automated data mining systems, returning the locus of data sovereignty to the end-user.
 
 \section{Conclusion}
-The practice of cloud hosts scraping user files for AI training requires new approaches to document privacy. We introduced VisioCrypt, a mobile application that provides zero-overhead, client-side encryption. By replacing standard block ciphers with the HGCC stream cipher---which combines a Galois LFSR, a cellular automaton, and a discrete chaos map---the system secures documents against both automated text extraction and offline cryptanalysis. It uses standard secure key derivation techniques (Argon2id and hardware biometrics) and implements a chunked streaming architecture to manage extremely large files on mobile hardware. We demonstrated its post-quantum viability against Grover's algorithm and its strict adherence to modern compliance frameworks. Future work will involve optimizing the Rule 30 evaluation steps using parallel GPU processing to improve encryption speeds on larger enterprise server systems.
+Establishing verifiable user sovereignty in public cloud storage architectures requires transitioning confidentiality boundaries from the server to the client. We introduced VisioCrypt, a client-side document encryption framework designed for mobile operating systems. By implementing a hybrid keystream cascade combining a Galois LFSR, a cellular automaton, and a linear-perturbed Prime Logistic Map, the application achieves format-preserving, authenticated document encryption. Integrating hardware-backed biometrics (TEE Keystore) and Argon2id enables zero-trust key management. The application's chunked streaming model allows files of arbitrary size to be encrypted on resource-constrained devices within a 10 MB RAM boundary. Future work includes evaluating the keystream generator against differential power analysis and optimizing the cellular automaton updates utilizing mobile GPU compute shaders.
 
 \bibliographystyle{splncs04}
 \bibliography{references}
