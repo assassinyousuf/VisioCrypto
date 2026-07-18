@@ -9,6 +9,7 @@
 \usepackage{hyperref}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{float}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,calc}
 
@@ -18,7 +19,7 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\backgroundcolor{backcolour},   
+    backgroundcolor=\color{backcolour},   
     commentstyle=\color{codegreen},
     keywordstyle=\color{magenta},
     numberstyle=\tiny\color{codegray},
@@ -207,7 +208,7 @@ The HGCC algorithm deliberately avoids using Substitution Boxes (S-Boxes) to red
 \subsection{Initialization and Output Generation}
 Algorithm \ref{alg:init} details the initialization process. The system runs a 3,072-iteration ``burn-in'' phase before encrypting any data. This step is designed to remove statistical biases from the initial state of the generators.
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{HGCC Initialization}\label{alg:init}
 \begin{algorithmic}[1]
 \Statex \textbf{Input:} MasterKey $MK$ of length 64 bytes, Prime $P = 9007199254740881$
@@ -232,7 +233,7 @@ Algorithm \ref{alg:init} details the initialization process. The system runs a 3
 
 Algorithm \ref{alg:tick} shows how the keystream is generated for each byte of the file.
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \caption{Hardened HGCC Generation Tick}\label{alg:tick}
 \begin{algorithmic}[1]
 \Statex \textbf{Input:} State $(L, C, X, \text{counter})$, Prime $P = 9007199254740881$
