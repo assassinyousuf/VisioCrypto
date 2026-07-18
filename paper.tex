@@ -87,6 +87,8 @@ Chaos theory studies non-linear dynamic systems that exhibit extreme sensitivity
 
 However, implementing continuous chaos in practical software is problematic. Continuous systems rely on real numbers, which computers approximate using floating-point arithmetic. Different processors (e.g., ARM processors in mobile phones versus x86 processors in desktop computers) handle floating-point rounding differently. Because chaotic systems amplify tiny differences, these microscopic rounding errors cause the generated keystreams to drift apart on different devices. This drift breaks the decryption process, rendering the ciphertext permanently unreadable. Reliable chaotic cryptography must therefore use discrete integer math over finite prime fields to ensure determinism across all platforms.
 
+Furthermore, chaos-based encryption is commonly deployed alongside domain-shifting techniques to achieve format-level obfuscation. For instance, Hossain et al. \cite{hossain2026visiolock} introduced VisioLock, a cross-media transmission system that encrypts digital images using a three-layer chaotic permutation-diffusion pipeline and modulates the ciphertext into synthetic noise-like audio waveforms to bypass automated file scanners. In this work, we extend this philosophy of client-side shielding against AI-scraping threats by implementing a native zero-overhead stream cipher directly in the document storage domain.
+
 \subsection{Cellular Automata}
 Cellular Automata (CA) consist of grids of discrete cells that evolve over time according to specific rules based on the states of neighboring cells. Stephen Wolfram's research on one-dimensional Cellular Automata \cite{wolfram1983} demonstrated that simple rules can produce complex, pseudo-random behavior. Wolfram classified CA into four behavioral classes, with Class III representing chaotic, aperiodic output.
 
@@ -356,6 +358,9 @@ Settle, J.: Linearization of nonlinear generators via cellular automata. arXiv:1
 
 \bibitem{mariot2024}
 Mariot, L.: On the cryptographic security of cellular automata-based PRNGs. arXiv:2405.02875 (2024)
+
+\bibitem{hossain2026visiolock}
+Hossain, M.Y., Sajeeb, S.S.H., Ausaf, S.M.N., Rahman, M.M., Saharaz, N.H., Based, M.A.: VisioLock: Cross-media secure image transmission via audio-domain encoding and device-bound cryptography. Taylor \& Francis Book Chapter (2026)
 \end{thebibliography}
 
 \end{document}
