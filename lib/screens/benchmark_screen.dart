@@ -10,10 +10,17 @@ class BenchmarkScreen extends StatefulWidget {
 
 class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProviderStateMixin {
   bool _isRunning = false;
-  double? _hgccSpeed;
-  double? _aesSpeed;
-  double? _chachaSpeed;
-  String _statusText = 'Click "Run Profiler" to measure hardware performance.';
+  int _activeTab = 0; // 0: Throughput, 1: SSE Metrics
+
+  // Throughput data
+  double? _aesCtrSpeed;
+  double? _aesGcmSpeed;
+
+  // SSE data
+  double? _sseIndexingTime;
+  double? _sseTrapdoorRate;
+
+  String _statusText = 'Click "Run Profiler" to measure client-side hardware performance.';
   late AnimationController _animationController;
 
   @override
@@ -34,42 +41,49 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
   Future<void> _startBenchmark() async {
     setState(() {
       _isRunning = true;
-      _hgccSpeed = null;
-      _aesSpeed = null;
-      _chachaSpeed = null;
-      _statusText = 'Initializing 2 MB mock payload in memory...';
+      _aesCtrSpeed = null;
+      _aesGcmSpeed = null;
+      _sseIndexingTime = null;
+      _sseTrapdoorRate = null;
+      _statusText = 'Initializing 2 MB payload in volatile memory...';
     });
     _animationController.repeat();
 
-    // Give UI a chance to render spinner
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      const payloadSize = 2 * 1024 * 1024; // 2 MB test buffer
+      const payloadSize = 2 * 1024 * 1024; // 2 MB buffer
 
       setState(() {
-        _statusText = 'Profiling HGCC (Galois-Cellular)...';
+        _statusText = 'Profiling AES-CTR-256 (Streaming Encrypt)...';
       });
       await Future.delayed(const Duration(milliseconds: 200));
-      final hgcc = CryptoBenchmark.benchmarkHGCC(payloadSize);
+      final ctr = CryptoBenchmark.benchmarkAesCtr(payloadSize);
 
       setState(() {
-        _statusText = 'Profiling AES-256 (Pure-Dart Block)...';
+        _statusText = 'Profiling AES-GCM-256 (Authenticated Encrypt)...';
       });
       await Future.delayed(const Duration(milliseconds: 200));
-      final aes = CryptoBenchmark.benchmarkAES256(payloadSize);
+      final gcm = CryptoBenchmark.benchmarkAesGcm(payloadSize);
 
       setState(() {
-        _statusText = 'Profiling ChaCha20 (Pure-Dart Stream)...';
+        _statusText = 'Profiling SSE Indexing (1,000 keyword inserts)...';
       });
       await Future.delayed(const Duration(milliseconds: 200));
-      final chacha = CryptoBenchmark.benchmarkChaCha20(payloadSize);
+      final sseIndex = CryptoBenchmark.benchmarkSseIndexing();
+
+      setState(() {
+        _statusText = 'Profiling SSE Trapdoor generation (10,000 derivations)...';
+      });
+      await Future.delayed(const Duration(milliseconds: 200));
+      final sseTrap = CryptoBenchmark.benchmarkSseTrapdoor();
 
       setState(() {
         _isRunning = false;
-        _hgccSpeed = hgcc;
-        _aesSpeed = aes;
-        _chachaSpeed = chacha;
+        _aesCtrSpeed = ctr;
+        _aesGcmSpeed = gcm;
+        _sseIndexingTime = sseIndex;
+        _sseTrapdoorRate = sseTrap;
         _statusText = 'Profiling completed successfully!';
       });
       _animationController.forward(from: 0.0);
@@ -84,8 +98,6 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    final maxSpeed = [_hgccSpeed ?? 1.0, _aesSpeed ?? 1.0, _chachaSpeed ?? 1.0].reduce((a, b) => a > b ? a : b);
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -93,8 +105,8 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF0D0B18), // deep dark violet
-              Color(0xFF07121A), // deep dark blue-teal
+              Color(0xFF07040C),
+              Color(0xFF030A10),
             ],
           ),
         ),
@@ -112,7 +124,7 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
                         colors: [Colors.cyanAccent, Colors.pinkAccent],
                       ).createShader(bounds),
                       child: const Text(
-                        'PERFORMANCE',
+                        'SECURE SSE',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -135,22 +147,22 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Empirical hardware benchmarks executed in volatile RAM.',
+                  'Empirical evaluation of client-side encryption and database indexing latency.',
                   style: TextStyle(
                     color: Colors.grey[400],
                     fontSize: 13,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
-                // Benchmark Status Panel
+                // Status Panel
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.03),
+                    color: Colors.white.withOpacity(0.02),
                     borderRadius: BorderRadius.circular(16.0),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withOpacity(0.06),
                       width: 1.0,
                     ),
                   ),
@@ -200,7 +212,17 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
+
+                // Tabs Selector
+                Row(
+                  children: [
+                    _buildTabButton(0, 'Symmetric Throughput'),
+                    const SizedBox(width: 12),
+                    _buildTabButton(1, 'SSE Database Metrics'),
+                  ],
+                ),
+                const SizedBox(height: 16),
 
                 // Chart Panel
                 Expanded(
@@ -210,16 +232,16 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
                       color: Colors.black.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(24.0),
                       border: Border.all(
-                        color: Colors.cyan.withOpacity(0.15),
+                        color: Colors.cyan.withOpacity(0.12),
                         width: 1.5,
                       ),
                     ),
-                    child: _hgccSpeed == null && !_isRunning
+                    child: _aesCtrSpeed == null && !_isRunning
                         ? _buildEmptyState()
-                        : _buildChart(maxSpeed),
+                        : (_activeTab == 0 ? _buildThroughputChart() : _buildSseChart()),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Run Button
                 ElevatedButton(
@@ -263,6 +285,39 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
     );
   }
 
+  Widget _buildTabButton(int index, String label) {
+    final active = _activeTab == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _activeTab = index;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: active ? Colors.cyan.withOpacity(0.15) : Colors.white.withOpacity(0.02),
+            borderRadius: BorderRadius.circular(12.0),
+            border: Border.all(
+              color: active ? Colors.cyanAccent.withOpacity(0.5) : Colors.white.withOpacity(0.06),
+              width: 1.0,
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: active ? Colors.white : Colors.white60,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -270,11 +325,11 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
         Icon(
           Icons.analytics_outlined,
           size: 64,
-          color: Colors.cyan.withOpacity(0.3),
+          color: Colors.cyan.withOpacity(0.2),
         ),
         const SizedBox(height: 16),
         const Text(
-          'No Benchmark Data',
+          'No Profiler Data Available',
           style: TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -283,7 +338,7 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
         ),
         const SizedBox(height: 8),
         Text(
-          'Run the suite to measure and compare encryption throughput speeds (MB/s) on this device.',
+          'Run the suite to profile client-side indexing and decryption benchmarks on this hardware architecture.',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.grey[500],
@@ -294,12 +349,17 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildChart(double maxSpeed) {
+  Widget _buildThroughputChart() {
+    final maxSpeed = [
+      _aesCtrSpeed ?? 1.0,
+      _aesGcmSpeed ?? 1.0,
+    ].reduce((a, b) => a > b ? a : b);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Throughput Speed Comparison',
+          'File Encryption Throughput',
           style: TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -308,7 +368,7 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
         ),
         const SizedBox(height: 4),
         Text(
-          'Higher values indicate faster processing speeds.',
+          'Throughput speeds (MB/s) of pure-Dart software cipher implementations.',
           style: TextStyle(
             color: Colors.grey[500],
             fontSize: 11,
@@ -316,47 +376,103 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
         ),
         const SizedBox(height: 24),
         
-        // Bars
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildBar(
-                name: 'HGCC (VisioCrypt)',
-                speed: _hgccSpeed,
+                name: 'AES-CTR-256 (Streaming)',
+                speed: _aesCtrSpeed,
                 maxSpeed: maxSpeed,
+                unit: 'MB/s',
                 color1: Colors.cyan,
                 color2: Colors.tealAccent,
-                description: 'Galois-Cellular Cascade Cipher (Pure Dart)',
+                description: 'Used for size-preserving document streaming.',
               ),
               _buildBar(
-                name: 'ChaCha20 (PointyCastle)',
-                speed: _chachaSpeed,
+                name: 'AES-GCM-256 (Authenticated)',
+                speed: _aesGcmSpeed,
                 maxSpeed: maxSpeed,
+                unit: 'MB/s',
                 color1: Colors.pink,
                 color2: Colors.orangeAccent,
-                description: 'ARX Stream Cipher (Pure Dart)',
-              ),
-              _buildBar(
-                name: 'AES-256 (PointyCastle)',
-                speed: _aesSpeed,
-                maxSpeed: maxSpeed,
-                color1: Colors.purple,
-                color2: Colors.indigoAccent,
-                description: 'Standard Block Cipher (Pure Dart)',
+                description: 'Used for secure searchable index blocks.',
               ),
             ],
           ),
         ),
-        
         const Divider(color: Colors.cyan, height: 32, thickness: 0.5),
-        
-        // Note
         Text(
-          'NOTE: Stream ciphers (HGCC, ChaCha20) generally process sequential data bytes faster in pure software environments than block ciphers (AES) because they bypass block structuring, padding, and S-box lookup tables.',
+          'NOTE: In pure Dart AOT-compiled execution, streaming AES-CTR slightly outperforms AES-GCM due to GCM\'s Galois field authentication tag overhead (GHASH evaluations).',
           style: TextStyle(
             color: Colors.grey[500],
-            fontSize: 10.5,
+            fontSize: 10,
+            height: 1.4,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSseChart() {
+    final maxVal = [
+      _sseIndexingTime ?? 1.0,
+      (_sseTrapdoorRate ?? 1000.0) / 1000.0 // Scaled to look nice
+    ].reduce((a, b) => a > b ? a : b);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Symmetric Searchable Index Latency',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Measures index encryption (lower is better) and trapdoor generation rate.',
+          style: TextStyle(
+            color: Colors.grey[500],
+            fontSize: 11,
+          ),
+        ),
+        const SizedBox(height: 24),
+        
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildBar(
+                name: 'SSE Index Compilation (1K words)',
+                speed: _sseIndexingTime,
+                maxSpeed: maxVal,
+                unit: 'ms',
+                color1: Colors.purple,
+                color2: Colors.indigoAccent,
+                description: 'Time to generate trapdoors and encrypt lookup table (lower is faster).',
+                invertRatio: true,
+              ),
+              _buildBar(
+                name: 'Trapdoor Derivation Rate',
+                speed: _sseTrapdoorRate,
+                maxSpeed: maxVal * 1000.0,
+                unit: 'ops/ms',
+                color1: Colors.green,
+                color2: Colors.greenAccent,
+                description: 'Number of HMAC-SHA256 operations generated per millisecond.',
+              ),
+            ],
+          ),
+        ),
+        const Divider(color: Colors.cyan, height: 32, thickness: 0.5),
+        Text(
+          'NOTE: Rapid trapdoor generation (~10,000 ops/ms) ensures search terms are encrypted instantaneously, preserving a zero-latency client search experience.',
+          style: TextStyle(
+            color: Colors.grey[500],
+            fontSize: 10,
             height: 1.4,
           ),
         ),
@@ -368,11 +484,20 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
     required String name,
     required double? speed,
     required double maxSpeed,
+    required String unit,
     required Color color1,
     required Color color2,
     required String description,
+    bool invertRatio = false,
   }) {
-    final double ratio = speed != null ? (speed / maxSpeed).clamp(0.05, 1.0) : 0.05;
+    double ratio = 0.05;
+    if (speed != null) {
+      ratio = speed / maxSpeed;
+      if (invertRatio) {
+        ratio = 1.0 - ratio;
+      }
+      ratio = ratio.clamp(0.05, 1.0);
+    }
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,7 +514,7 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> with SingleTickerProv
               ),
             ),
             Text(
-              speed != null ? '${speed.toStringAsFixed(2)} MB/s' : 'Pending...',
+              speed != null ? '${speed.toStringAsFixed(2)} $unit' : 'Pending...',
               style: TextStyle(
                 color: speed != null ? color2 : Colors.grey,
                 fontFamily: 'monospace',

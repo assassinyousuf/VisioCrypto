@@ -1,32 +1,30 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
-import '../crypto/hgcc_engine.dart';
 
-/// State representation of the HGCC cipher for visualization.
-class HgccVisualState {
-  final int lfsr;
-  final Uint8List ca;
-  final BigInt chaos;
+/// State representation of the AES-CTR and SSE engine for visualization.
+class SseVisualState {
+  final Uint8List block;
+  final Uint8List hmac;
   final int counter;
+  final String keyword;
 
-  HgccVisualState({
-    required this.lfsr,
-    required this.ca,
-    required this.chaos,
+  SseVisualState({
+    required this.block,
+    required this.hmac,
     required this.counter,
+    required this.keyword,
   });
 }
 
-/// A futuristic, glassmorphic visualizer showing the HGCC internal states.
+/// A futuristic, glassmorphic visualizer showing standard AES-CTR blocks and HMAC-SHA256 states.
 class KeystreamVisualizer extends StatelessWidget {
-  final HgccVisualState? state;
+  final SseVisualState? state;
 
   const KeystreamVisualizer({Key? key, this.state}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final activeState = state;
-    final theme = Theme.of(context);
 
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -34,12 +32,12 @@ class KeystreamVisualizer extends StatelessWidget {
         color: Colors.black.withOpacity(0.4),
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: Colors.cyan.withOpacity(0.2),
+          color: Colors.cyan.withOpacity(0.18),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.cyan.withOpacity(0.05),
+            color: Colors.cyan.withOpacity(0.04),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -70,68 +68,57 @@ class KeystreamVisualizer extends StatelessWidget {
                           : [],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'HGCC Keystream Engine Visualizer',
-                    style: TextStyle(
-                      color: Colors.cyan[100],
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
                 ],
               ),
               Text(
                 activeState != null
-                    ? 'TICK: ${activeState.counter}'
-                    : 'IDLE',
+                    ? 'INDEXING: ${activeState.keyword.toUpperCase()}'
+                    : 'CRYPT ENGINE: IDLE',
                 style: TextStyle(
                   color: activeState != null ? Colors.cyanAccent : Colors.grey[500],
                   fontSize: 11,
                   fontFamily: 'monospace',
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
                 ),
               ),
             ],
           ),
           const Divider(color: Colors.cyan, height: 20, thickness: 0.5),
           
-          // 1. LFSR Hex Display
-          _buildLFSRDisplay(activeState),
+          // 1. AES Counter Display (128-bit Counter)
+          _buildAESCounterDisplay(activeState),
           const SizedBox(height: 16),
 
-          // 2. Cellular Automaton Grid
-          _buildCAGrid(activeState),
+          // 2. AES Block State Grid (16 bytes representation)
+          _buildBlockGrid(activeState),
           const SizedBox(height: 16),
 
-          // 3. Chaos Attractor Attenuator
-          _buildChaosDisplay(activeState),
+          // 3. HMAC-SHA256 Running Tag Display
+          _buildHmacDisplay(activeState),
         ],
       ),
     );
   }
 
-  Widget _buildLFSRDisplay(HgccVisualState? state) {
-    final hexString = state != null
-        ? state.lfsr.toRadixString(16).toUpperCase().padLeft(16, '0')
-        : '0000000000000000';
+  Widget _buildAESCounterDisplay(SseVisualState? state) {
+    final blockNum = state?.counter ?? 0;
+    final counterHex = blockNum.toRadixString(16).toUpperCase().padLeft(32, '0');
     
-    // Split into 4 chunks for readability
-    final chunk1 = hexString.substring(0, 4);
-    final chunk2 = hexString.substring(4, 8);
-    final chunk3 = hexString.substring(8, 12);
-    final chunk4 = hexString.substring(12, 16);
+    final chunk1 = counterHex.substring(0, 8);
+    final chunk2 = counterHex.substring(8, 16);
+    final chunk3 = counterHex.substring(16, 24);
+    final chunk4 = counterHex.substring(24, 32);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            Icon(Icons.memory, size: 14, color: Colors.indigo[300]),
-            const SizedBox(width: 6),
-            const Text(
-              '64-bit Galois LFSR State (Hex)',
+            Icon(Icons.add_road, size: 14, color: Colors.indigoAccent),
+            SizedBox(width: 6),
+            Text(
+              '128-bit AES-CTR Block Counter (Hex)',
               style: TextStyle(color: Colors.grey, fontSize: 11),
             ),
           ],
@@ -169,10 +156,10 @@ class KeystreamVisualizer extends StatelessWidget {
       text,
       style: TextStyle(
         color: color,
-        fontSize: 14,
+        fontSize: 13,
         fontFamily: 'monospace',
         fontWeight: FontWeight.bold,
-        letterSpacing: 1.5,
+        letterSpacing: 1.2,
       ),
     );
   }
@@ -180,166 +167,110 @@ class KeystreamVisualizer extends StatelessWidget {
   Widget _hexSpace() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 4.0),
-      child: Text('-', style: TextStyle(color: Colors.grey, fontSize: 14)),
+      child: Text('-', style: TextStyle(color: Colors.grey, fontSize: 13)),
     );
   }
 
-  Widget _buildCAGrid(HgccVisualState? state) {
-    final caList = state?.ca ?? Uint8List(64);
+  Widget _buildBlockGrid(SseVisualState? state) {
+    final block = state?.block ?? Uint8List(16);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            Icon(Icons.grid_on, size: 14, color: Colors.teal[300]),
-            const SizedBox(width: 6),
-            const Text(
-              'Rule 30 CA 512-bit Array (Circular byte-wise)',
+            Icon(Icons.grid_on, size: 14, color: Colors.tealAccent),
+            SizedBox(width: 6),
+            Text(
+              '16-Byte AES State Block Array',
               style: TextStyle(color: Colors.grey, fontSize: 11),
             ),
           ],
         ),
         const SizedBox(height: 6),
         Container(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.3),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.teal.withOpacity(0.2)),
           ),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 64,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 16,
-              crossAxisSpacing: 3,
-              mainAxisSpacing: 3,
-            ),
-            itemBuilder: (context, index) {
-              final val = caList[index];
-              // Map byte value to colors: 0 (dark) to 255 (teal glow)
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(16, (index) {
+              final val = block[index];
+              final hexVal = val.toRadixString(16).toUpperCase().padLeft(2, '0');
               final intensity = val / 255.0;
-              final color = state != null
-                  ? Color.lerp(Colors.teal.shade900.withOpacity(0.3), Colors.tealAccent, intensity)!
-                  : Colors.grey.shade900;
-              
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 100),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(2),
-                  boxShadow: state != null && val > 200
-                      ? [
-                          BoxShadow(
-                            color: Colors.tealAccent.withOpacity(0.5),
-                            blurRadius: 4,
-                            spreadRadius: 0.5,
-                          ),
-                        ]
-                      : [],
-                ),
+              final textColor = state != null
+                  ? Color.lerp(Colors.teal.shade200, Colors.tealAccent, intensity)!
+                  : Colors.grey.shade600;
+
+              return Column(
+                children: [
+                  Text(
+                    hexVal,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 10,
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: state != null
+                          ? Colors.tealAccent.withOpacity(intensity.clamp(0.2, 1.0))
+                          : Colors.grey.shade900,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
               );
-            },
+            }),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildChaosDisplay(HgccVisualState? state) {
-    final maxChaos = HgccEngine.primeP;
-    final chaosVal = state?.chaos ?? BigInt.zero;
+  Widget _buildHmacDisplay(SseVisualState? state) {
+    final hmac = state?.hmac ?? Uint8List(32);
+    final hmacHex = hmac.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
     
-    // Convert to double percentage safely
-    double percentage = 0.0;
-    if (chaosVal > BigInt.zero && maxChaos > BigInt.zero) {
-      percentage = (chaosVal.toDouble() / maxChaos.toDouble()).clamp(0.0, 1.0);
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            Icon(Icons.grain, size: 14, color: Colors.purple[300]),
-            const SizedBox(width: 6),
-            const Text(
-              'Discrete Prime Logistic Map State (53-bit Attractor)',
+            Icon(Icons.lock_clock, size: 14, color: Colors.purpleAccent),
+            SizedBox(width: 6),
+            Text(
+              'HMAC-SHA256 Running Authentication Tag',
               style: TextStyle(color: Colors.grey, fontSize: 11),
             ),
           ],
         ),
         const SizedBox(height: 6),
         Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.3),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.purple.withOpacity(0.2)),
           ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'X_n: $chaosVal',
-                      style: TextStyle(
-                        color: Colors.purple[100],
-                        fontSize: 10.5,
-                        fontFamily: 'monospace',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${(percentage * 100).toStringAsFixed(2)}%',
-                    style: const TextStyle(
-                      color: Colors.purpleAccent,
-                      fontSize: 11,
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Stack(
-                children: [
-                  Container(
-                    height: 6,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.purple.shade900.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                  FractionallySizedBox(
-                    widthFactor: percentage,
-                    child: Container(
-                      height: 6,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Colors.purple, Colors.pinkAccent],
-                        ),
-                        borderRadius: BorderRadius.circular(3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.pinkAccent.withOpacity(0.5),
-                            blurRadius: 4,
-                            spreadRadius: 0.5,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          child: Text(
+            state != null ? hmacHex : '0000000000000000000000000000000000000000000000000000000000000000',
+            style: TextStyle(
+              color: Colors.purple[100],
+              fontSize: 10,
+              fontFamily: 'monospace',
+              letterSpacing: 1.0,
+            ),
+            textAlign: TextAlign.center,
           ),
         ),
       ],

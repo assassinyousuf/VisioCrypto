@@ -1,16 +1,19 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pointycastle/export.dart';
-import 'hgcc_engine.dart';
+import 'crypt_engine.dart';
+import 'sse_engine.dart';
 
-/// Cryptographic benchmarking engine to measure empirical performance in MB/s.
+/// Cryptographic benchmarking engine to measure empirical performance of standard primitives and SSE indexing.
 class CryptoBenchmark {
-  /// Benchmarks our custom HGCC Stream Cipher
-  static double benchmarkHGCC(int sizeBytes) {
+  /// Benchmarks AES-CTR-256 (our stream wrapper around AESEngine)
+  static double benchmarkAesCtr(int sizeBytes) {
     final data = Uint8List(sizeBytes);
-    final key = Uint8List(64); // 64-byte key
+    final key = Uint8List(32); // 256-bit key
+    final iv = Uint8List(16);  // 128-bit IV
     
-    final engine = HgccEngine();
-    engine.init(key);
+    final engine = AesCtrEngine();
+    engine.init(key, iv);
 
     final stopwatch = Stopwatch()..start();
     for (int i = 0; i < sizeBytes; i++) {
@@ -25,23 +28,14 @@ class CryptoBenchmark {
     return mb / (seconds == 0 ? 0.0001 : seconds);
   }
 
-  /// Benchmarks PointyCastle pure-Dart AES-256 (Block Cipher)
-  static double benchmarkAES256(int sizeBytes) {
+  /// Benchmarks PointyCastle pure-Dart AES-GCM-256 (Authenticated Block Cipher)
+  static double benchmarkAesGcm(int sizeBytes) {
     final data = Uint8List(sizeBytes);
     final key = Uint8List(32); // 256-bit key
+    final iv = Uint8List(12);  // 96-bit GCM IV
     
-    final aes = AESEngine();
-    aes.init(true, KeyParameter(key));
-
-    final outBlock = Uint8List(16);
     final stopwatch = Stopwatch()..start();
-    
-    // Process block-by-block (16 bytes)
-    for (int i = 0; i < sizeBytes; i += 16) {
-      if (i + 16 <= sizeBytes) {
-        aes.processBlock(data, i, outBlock, 0);
-      }
-    }
+    final encrypted = SseEngine.encryptGcm(key, iv, data);
     stopwatch.stop();
 
     final elapsedMs = stopwatch.elapsedMilliseconds;
@@ -50,24 +44,49 @@ class CryptoBenchmark {
     return mb / (seconds == 0 ? 0.0001 : seconds);
   }
 
-  /// Benchmarks PointyCastle pure-Dart ChaCha20 (Stream Cipher)
-  static double benchmarkChaCha20(int sizeBytes) {
-    final data = Uint8List(sizeBytes);
-    final key = Uint8List(32); // 256-bit key
-    final nonce = Uint8List(12); // 96-bit nonce
+  /// Benchmarks the latency of building and encrypting an SSE index with 1,000 keywords
+  static double benchmarkSseIndexing() {
+    final keywords = List.generate(1000, (i) => 'keyword$i').toSet();
+    final key = Uint8List(64);
+    final salt = Uint8List(16);
     
-    final params = ParametersWithIV(KeyParameter(key), nonce);
-    final chacha = ChaCha7539Engine();
-    chacha.init(true, params);
+    // Simulate SSE keys derivation
+    final sseKeys = SseEngine.deriveSseKeys(key, salt);
+    final kSearch = sseKeys['kSearch']!;
+    final kIndexVal = sseKeys['kIndexVal']!;
 
-    final out = Uint8List(sizeBytes);
     final stopwatch = Stopwatch()..start();
-    chacha.processBytes(data, 0, sizeBytes, out, 0);
-    stopwatch.stop();
+    
+    // Mock SSE Index Database
+    final Map<String, List<String>> mockDb = {};
+    for (final word in keywords) {
+      final trapdoor = SseEngine.computeTrapdoor(word, kSearch);
+      mockDb[trapdoor] = ['doc1.txt', 'doc2.txt'];
+    }
 
-    final elapsedMs = stopwatch.elapsedMilliseconds;
-    final mb = sizeBytes / (1024.0 * 1024.0);
-    final seconds = elapsedMs / 1000.0;
-    return mb / (seconds == 0 ? 0.0001 : seconds);
+    // Encrypt the lookup table
+    for (final entry in mockDb.entries) {
+      final iv = Uint8List(12);
+      final plainBytes = utf8.encode(json.encode(entry.value));
+      SseEngine.encryptGcm(kIndexVal, iv, Uint8List.fromList(plainBytes));
+    }
+
+    stopwatch.stop();
+    return stopwatch.elapsedMicroseconds / 1000.0; // returns milliseconds for 1000 words
+  }
+
+  /// Benchmarks Trapdoor generation rate (HMAC evaluations per millisecond)
+  static double benchmarkSseTrapdoor() {
+    final key = Uint8List(32);
+    final stopwatch = Stopwatch()..start();
+    int iterations = 10000;
+    
+    for (int i = 0; i < iterations; i++) {
+      SseEngine.computeTrapdoor('searchterm$i', key);
+    }
+    
+    stopwatch.stop();
+    final ms = stopwatch.elapsedMilliseconds;
+    return iterations / (ms == 0 ? 0.0001 : ms); // Trapdoors generated per millisecond
   }
 }

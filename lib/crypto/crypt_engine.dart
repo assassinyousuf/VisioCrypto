@@ -4,18 +4,50 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:convert/convert.dart';
+import 'package:pointycastle/export.dart' hide Digest;
 import 'hkdf.dart';
-import 'hgcc_engine.dart';
 
-/// HGCC Authenticated Encryption with Associated Data (AEAD) implementation.
-/// Implements Encrypt-then-MAC (EtM) with HMAC-SHA256, chunked file streaming,
-/// and the secure deletion (Ghost Protocol) mechanism.
-class HgccAead {
+/// AES-CTR-256 stream engine using PointyCastle's core AES block cipher.
+class AesCtrEngine {
+  final AESEngine _aes = AESEngine();
+  late Uint8List _counter;
+  final Uint8List _keystreamBuffer = Uint8List(16);
+  int _keystreamIdx = 16;
+
+  void init(Uint8List key, Uint8List iv) {
+    if (key.length != 32) {
+      throw ArgumentError('AES-256 key must be 32 bytes.');
+    }
+    if (iv.length != 16) {
+      throw ArgumentError('AES IV must be 16 bytes.');
+    }
+    _aes.init(true, KeyParameter(key));
+    _counter = Uint8List.fromList(iv);
+    _keystreamIdx = 16; // Force initial keystream generation block
+  }
+
+  int tick() {
+    if (_keystreamIdx == 16) {
+      _aes.processBlock(_counter, 0, _keystreamBuffer, 0);
+      
+      // Increment 128-bit big-endian counter
+      for (int i = 15; i >= 0; i--) {
+        _counter[i]++;
+        if (_counter[i] != 0) break;
+      }
+      _keystreamIdx = 0;
+    }
+    return _keystreamBuffer[_keystreamIdx++];
+  }
+}
+
+/// Standard Authenticated Encryption with Associated Data (AEAD) implementation.
+/// Implements Encrypt-then-MAC (EtM) with AES-CTR-256, HMAC-SHA256, and Ghost Protocol.
+class CryptEngine {
   static const int saltSize = 16;
   static const int tagSize = 32; // HMAC-SHA256 tag size
   static const int chunkSize = 65536; // 64 KB chunks
 
-  /// Generates a cryptographically secure random byte array
   static Uint8List generateSalt() {
     final rand = Random.secure();
     final bytes = Uint8List(saltSize);
@@ -25,7 +57,6 @@ class HgccAead {
     return bytes;
   }
 
-  /// Constant-time byte array comparison to prevent timing side-channel attacks
   static bool safeEquals(Uint8List a, Uint8List b) {
     if (a.length != b.length) return false;
     int result = 0;
@@ -35,14 +66,13 @@ class HgccAead {
     return result == 0;
   }
 
-  /// Encrypts a file using HGCC and HMAC-SHA256 in a streaming fashion.
+  /// Encrypts a file using AES-CTR-256 and HMAC-SHA256.
   /// Output format: [16-byte Salt] [Ciphertext] [32-byte HMAC Tag]
   static Future<void> encryptFile({
     required File sourceFile,
     required File destFile,
     required Uint8List masterKey,
     Function(double progress)? onProgress,
-    Function(HgccEngine engine)? onTick, // For live keystream visualization
   }) async {
     if (!await sourceFile.exists()) {
       throw FileSystemException('Source file does not exist', sourceFile.path);
@@ -50,51 +80,38 @@ class HgccAead {
 
     final salt = generateSalt();
 
-    // Derive Kenc (64 bytes) and Kmac (32 bytes) from Master Key using HKDF-SHA256
+    // Derive Kenc, IV, and Kmac
     final hkdf = Hkdf(sha256);
     final prk = hkdf.extract(salt, masterKey);
-    final kEnc = hkdf.expand(prk, utf8.encode('VisioCrypt-Encryption-Key'), 64);
+    final kEnc = hkdf.expand(prk, utf8.encode('VisioCrypt-AES-Key'), 32);
+    final iv = hkdf.expand(prk, utf8.encode('VisioCrypt-AES-IV'), 16);
     final kMac = hkdf.expand(prk, utf8.encode('VisioCrypt-MAC-Key'), 32);
 
-    // Initialize HGCC engine with derived encryption key
-    final engine = HgccEngine();
-    engine.init(kEnc);
+    final engine = AesCtrEngine();
+    engine.init(kEnc, iv);
 
-    // Prepare HMAC-SHA256 calculator
     final hmacInputSink = AccumulatorSink<Digest>();
     final hmacInstance = Hmac(sha256, kMac);
     final hmacByteSink = hmacInstance.startChunkedConversion(hmacInputSink);
 
-    // Add Salt to HMAC calculation first to verify its integrity
     hmacByteSink.add(salt);
 
-    // Open source file for reading and destination file for writing
     final sourceStream = sourceFile.openRead();
     final totalBytes = await sourceFile.length();
     int processedBytes = 0;
 
-    // Create target dir if it doesn't exist
     if (!await destFile.parent.exists()) {
       await destFile.parent.create(recursive: true);
     }
-
     final destSink = destFile.openWrite(mode: FileMode.write);
-    
-    // Write salt to destination first
     destSink.add(salt);
 
     await for (final chunk in sourceStream) {
       final encryptedChunk = Uint8List(chunk.length);
       for (int i = 0; i < chunk.length; i++) {
-        final k = engine.tick();
-        encryptedChunk[i] = chunk[i] ^ k;
-        if (onTick != null && i % 100 == 0) {
-          // Sample state for visualizer
-          onTick(engine);
-        }
+        encryptedChunk[i] = chunk[i] ^ engine.tick();
       }
 
-      // Add encrypted chunk to output file and HMAC
       destSink.add(encryptedChunk);
       hmacByteSink.add(encryptedChunk);
 
@@ -104,24 +121,20 @@ class HgccAead {
       }
     }
 
-    // Finalize HMAC
     hmacByteSink.close();
     final hmacTag = hmacInputSink.events.single.bytes;
-
-    // Write HMAC Tag to the end of the file
     destSink.add(hmacTag);
 
     await destSink.flush();
     await destSink.close();
   }
 
-  /// Decrypts a file using HGCC and verifies its HMAC-SHA256 tag in a streaming fashion.
+  /// Decrypts a file using AES-CTR-256 and verifies HMAC-SHA256 integrity.
   static Future<void> decryptFile({
     required File sourceFile,
     required File destFile,
     required Uint8List masterKey,
     Function(double progress)? onProgress,
-    Function(HgccEngine engine)? onTick, // For live keystream visualization
   }) async {
     if (!await sourceFile.exists()) {
       throw FileSystemException('Source file does not exist', sourceFile.path);
@@ -134,25 +147,24 @@ class HgccAead {
 
     final ciphertextLength = totalSourceBytes - saltSize - tagSize;
 
-    // 1. Read the 16-byte Salt
     final randomAccess = await sourceFile.open(mode: FileMode.read);
     final salt = await randomAccess.read(saltSize);
     await randomAccess.close();
 
-    // Derive Kenc and Kmac
+    // Derive keys
     final hkdf = Hkdf(sha256);
     final prk = hkdf.extract(salt, masterKey);
-    final kEnc = hkdf.expand(prk, utf8.encode('VisioCrypt-Encryption-Key'), 64);
+    final kEnc = hkdf.expand(prk, utf8.encode('VisioCrypt-AES-Key'), 32);
+    final iv = hkdf.expand(prk, utf8.encode('VisioCrypt-AES-IV'), 16);
     final kMac = hkdf.expand(prk, utf8.encode('VisioCrypt-MAC-Key'), 32);
 
-    // 2. Perform HMAC-SHA256 verification (Encrypt-then-MAC)
+    // Verify tag
     final hmacInputSink = AccumulatorSink<Digest>();
     final hmacInstance = Hmac(sha256, kMac);
     final hmacByteSink = hmacInstance.startChunkedConversion(hmacInputSink);
 
     hmacByteSink.add(salt);
 
-    // Read ciphertext and compute HMAC
     final verificationStream = sourceFile.openRead(saltSize, totalSourceBytes - tagSize);
     await for (final chunk in verificationStream) {
       hmacByteSink.add(chunk);
@@ -160,20 +172,17 @@ class HgccAead {
     hmacByteSink.close();
     final computedTag = Uint8List.fromList(hmacInputSink.events.single.bytes);
 
-    // Read the stored tag
     final randomAccessForTag = await sourceFile.open(mode: FileMode.read);
     await randomAccessForTag.setPosition(totalSourceBytes - tagSize);
     final storedTag = await randomAccessForTag.read(tagSize);
     await randomAccessForTag.close();
 
-    // Verify tag in constant-time
     if (!safeEquals(computedTag, storedTag)) {
       throw SecurityException('Integrity check failed: invalid HMAC signature (ciphertext was modified).');
     }
 
-    // 3. Decrypt ciphertext using HGCC
-    final engine = HgccEngine();
-    engine.init(kEnc);
+    final engine = AesCtrEngine();
+    engine.init(kEnc, iv);
 
     if (!await destFile.parent.exists()) {
       await destFile.parent.create(recursive: true);
@@ -186,15 +195,10 @@ class HgccAead {
     await for (final chunk in ciphertextStream) {
       final decryptedChunk = Uint8List(chunk.length);
       for (int i = 0; i < chunk.length; i++) {
-        final k = engine.tick();
-        decryptedChunk[i] = chunk[i] ^ k;
-        if (onTick != null && i % 100 == 0) {
-          onTick(engine);
-        }
+        decryptedChunk[i] = chunk[i] ^ engine.tick();
       }
 
       destSink.add(decryptedChunk);
-
       processedBytes += chunk.length;
       if (onProgress != null && ciphertextLength > 0) {
         onProgress(processedBytes / ciphertextLength);
@@ -210,9 +214,8 @@ class HgccAead {
     if (!await file.exists()) return;
     
     final length = await file.length();
-    final zeroChunk = Uint8List(chunkSize); // zero bytes
+    final zeroChunk = Uint8List(chunkSize);
     
-    // Open file to write zeros over its content
     final randomAccess = await file.open(mode: FileMode.write);
     int bytesWritten = 0;
     
@@ -224,13 +227,10 @@ class HgccAead {
     
     await randomAccess.flush();
     await randomAccess.close();
-    
-    // Finally, unlink the file from the filesystem
     await file.delete();
   }
 }
 
-/// Custom Security Exception for integrity failures
 class SecurityException implements Exception {
   final String message;
   SecurityException(this.message);
