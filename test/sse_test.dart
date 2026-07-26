@@ -218,5 +218,45 @@ void main() {
 
       expect(searchResults3.isEmpty, true);
     });
+
+    test('Volume-Hiding padding pads index lists and search filters dummy matching records', () async {
+      final docPath = 'E:\\_PROJECTS\\visiocrypto\\dummy_report.txt';
+      final keywords = {'report'};
+
+      await SseEngine.indexDocument(
+        indexFile: indexFile,
+        documentPath: docPath,
+        keywords: keywords,
+        masterKey: masterKey,
+        salt: salt,
+      );
+
+      // Load index raw decrypted db entries
+      final sseKeys = SseEngine.deriveSseKeys(masterKey, salt);
+      final kIndexVal = sseKeys['kIndexVal']!;
+      final rawDb = await SseEngine.loadIndexDb(indexFile, kIndexVal);
+
+      // Extract raw list
+      final trapdoor = SseEngine.computeTrapdoor('report', sseKeys['kSearch']!);
+      expect(rawDb.containsKey(trapdoor), true);
+      
+      final rawList = rawDb[trapdoor] as List<String>;
+      // Padding must make the list a power of 2, minimum 4
+      expect(rawList.length >= 4, true);
+      expect((rawList.length & (rawList.length - 1)) == 0, true); // power of 2 check
+      expect(rawList.any((entry) => entry.startsWith('__DUMMY_MATCH_')), true);
+
+      // Now verify that searching filters the dummy matches out
+      final searchResults = await SseEngine.searchIndex(
+        indexFile: indexFile,
+        keyword: 'report',
+        masterKey: masterKey,
+        salt: salt,
+      );
+
+      expect(searchResults.length, 1);
+      expect(searchResults.contains('dummy_report.txt'), true);
+      expect(searchResults.any((entry) => entry.startsWith('__DUMMY_MATCH_')), false);
+    });
   });
 }

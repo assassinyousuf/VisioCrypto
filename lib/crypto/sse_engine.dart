@@ -85,6 +85,28 @@ class SseEngine {
     return cipher.process(ciphertext);
   }
 
+  static void _zeroize(Uint8List bytes) {
+    bytes.fillRange(0, bytes.length, 0);
+  }
+
+  static List<String> _padFileList(List<String> files) {
+    final cleanList = files.where((name) => !name.startsWith('__DUMMY_MATCH_')).toList();
+    int len = cleanList.length;
+    int targetLen = 4;
+    while (targetLen < len && targetLen < 64) {
+      targetLen *= 2;
+    }
+    if (targetLen < len) targetLen = len;
+
+    final padded = List<String>.from(cleanList);
+    final rand = Random.secure();
+    while (padded.length < targetLen) {
+      final dummyId = '__DUMMY_MATCH_${rand.nextInt(10000000)}__';
+      padded.add(dummyId);
+    }
+    return padded;
+  }
+
   /// Adds a document to the encrypted SSE index database.
   /// If the index file doesn't exist, a new one is initialized.
   static Future<void> indexDocument({
@@ -116,6 +138,10 @@ class SseEngine {
     }
 
     await saveIndexDb(indexFile, indexDb, kIndexVal);
+
+    // Transient Memory Zeroization
+    _zeroize(kSearch);
+    _zeroize(kIndexVal);
   }
 
   /// Searches the encrypted index database using a keyword trapdoor.
@@ -134,10 +160,17 @@ class SseEngine {
     final trapdoor = computeTrapdoor(keyword, kSearch);
     final Map<String, dynamic> indexDb = await loadIndexDb(indexFile, kIndexVal);
 
+    List<String> results = [];
     if (indexDb.containsKey(trapdoor)) {
-      return List<String>.from(indexDb[trapdoor]);
+      final rawList = List<String>.from(indexDb[trapdoor]);
+      results = rawList.where((name) => !name.startsWith('__DUMMY_MATCH_')).toList();
     }
-    return [];
+
+    // Transient Memory Zeroization
+    _zeroize(kSearch);
+    _zeroize(kIndexVal);
+
+    return results;
   }
 
   /// Helper: Load and decrypt index file from disk
@@ -179,9 +212,10 @@ class SseEngine {
     for (final entry in indexDb.entries) {
       final trapdoor = entry.key;
       final fileList = entry.value as List<String>;
+      final paddedList = _padFileList(fileList);
 
       // Serialize value
-      final plainBytes = utf8.encode(json.encode(fileList));
+      final plainBytes = utf8.encode(json.encode(paddedList));
 
       // Generate 12-byte random IV for GCM
       final iv = Uint8List(12);

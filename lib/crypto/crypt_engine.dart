@@ -66,6 +66,10 @@ class CryptEngine {
     return result == 0;
   }
 
+  static void zeroize(Uint8List bytes) {
+    bytes.fillRange(0, bytes.length, 0);
+  }
+
   /// Encrypts a file using AES-CTR-256 and HMAC-SHA256.
   /// Output format: [16-byte Salt] [Ciphertext] [32-byte HMAC Tag]
   static Future<void> encryptFile({
@@ -127,6 +131,12 @@ class CryptEngine {
 
     await destSink.flush();
     await destSink.close();
+
+    // Transient Memory Zeroization
+    zeroize(kEnc);
+    zeroize(iv);
+    zeroize(kMac);
+    zeroize(prk);
   }
 
   /// Decrypts a file using AES-CTR-256 and verifies HMAC-SHA256 integrity.
@@ -207,6 +217,12 @@ class CryptEngine {
 
     await destSink.flush();
     await destSink.close();
+
+    // Transient Memory Zeroization
+    zeroize(kEnc);
+    zeroize(iv);
+    zeroize(kMac);
+    zeroize(prk);
   }
 
   /// Ghost Protocol: Securely wipe plaintext memory buffers and overwrite the file on disk.
