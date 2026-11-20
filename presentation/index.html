@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisioCrypt: Academic Defense & System Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080d1a;
+      --card-bg: rgba(16, 24, 48, 0.85);
+      --card-border: rgba(0, 212, 255, 0.2);
+      --accent-cyan: #00d4ff;
+      --accent-blue: #2563eb;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --shadow-glow: 0 0 30px rgba(0, 212, 255, 0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top right, #111e38 0%, #080d1a 100%);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+    .topbar {
+      height: 56px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 13, 26, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+    .logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
+    .logo-badge .chip {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #080d1a;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 800;
+    }
+    .slide-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 48px 80px 48px;
+    }
+    .slide {
+      position: absolute;
+      width: min(1300px, 94vw);
+      height: min(720px, 80vh);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-glow);
+      backdrop-filter: blur(20px);
+      padding: 40px 48px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px) scale(0.98);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0) scale(1);
+    }
+    .slide-header {
+      margin-bottom: 24px;
+    }
+    .slide-number {
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-cyan);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+    .slide-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .slide-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+      overflow: hidden;
+    }
+    .full-width {
+      grid-template-columns: 1fr !important;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .card h3 {
+      font-size: 1.25rem;
+      color: var(--accent-cyan);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card ul {
+      list-style: none;
+    }
+    .card li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 12px;
+      color: #cbd5e1;
+      font-size: 1.02rem;
+      line-height: 1.5;
+    }
+    .card li::before {
+      content: "▹";
+      position: absolute;
+      left: 0;
+      color: var(--accent-cyan);
+      font-weight: bold;
+    }
+    .card strong {
+      color: #ffffff;
+    }
+    .figure-container {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    .figure-container img {
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .figure-caption {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+    th {
+      background: rgba(0, 212, 255, 0.15);
+      color: var(--accent-cyan);
+      text-align: left;
+      padding: 12px 16px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--accent-cyan);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    tr.highlight td {
+      background: rgba(0, 212, 255, 0.08);
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      font-family: 'Fira Code', monospace;
+    }
+    .badge-green { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-blue { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+    .badge-amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+    /* Navigation */
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(16, 24, 48, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 8px 20px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 200;
+    }
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: var(--accent-cyan);
+      color: #080d1a;
+    }
+    .slide-indicator {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="logo-badge">
+      <span class="chip">RESEARCH</span>
+      <span>VisioCrypt: Hardware-Anchored Volume-Hiding SSE</span>
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <a href="slides.pdf" target="_blank" class="btn" style="text-decoration:none; font-size: 0.85rem;">📄 Open PDF Slide Deck</a>
+    </div>
+  </div>
+
+  <div class="slide-container">
+
+    <!-- SLIDE 1: Title -->
+    <div class="slide active" id="slide-1">
+      <div class="slide-header" style="text-align: center; margin-top: 40px;">
+        <div class="slide-number">ACADEMIC RESEARCH PRESENTATION 2026</div>
+        <h1 class="slide-title" style="font-size: 2.8rem; line-height: 1.2; margin: 16px 0;">
+          VisioCrypt: A TEE-Anchored Client-Side Searchable Encryption Scheme
+        </h1>
+        <p style="font-size: 1.3rem; color: #94a3b8; max-width: 900px; margin: 0 auto;">
+          Dynamic Volume-Hiding Padding, Mobile Memory Hygiene, and Sub-Millisecond Search for Cloud Storage
+        </p>
+      </div>
+      <div style="display: flex; justify-content: center; gap: 40px; margin-top: 50px;">
+        <div class="card" style="width: 320px; text-align: center;">
+          <h3 style="justify-content: center;">🔒 ARM TrustZone</h3>
+          <p style="color: #94a3b8; font-size: 0.9rem;">Hardware root-of-trust key isolation with biometric gating</p>
+        </div>
+        <div class="card" style="width: 320px; text-align: center;">
+          <h3 style="justify-content: center;">📊 Power-of-Two Padding</h3>
+          <p style="color: #94a3b8; font-size: 0.9rem;">Suppresses volume leakage to defeat frequency analysis attacks</p>
+        </div>
+        <div class="card" style="width: 320px; text-align: center;">
+          <h3 style="justify-content: center;">⚡ 0.23 ms Search Speed</h3>
+          <p style="color: #94a3b8; font-size: 0.9rem;">Sub-millisecond retrieval across 10,000 keyword dictionary</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Problem Statement -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <div class="slide-number">01 / MOTIVATION & PROBLEM</div>
+        <h2 class="slide-title">Why Commercial Cloud Backups Leak Privacy</h2>
+      </div>
+      <div class="slide-body">
+        <div class="card">
+          <h3>⚠️ The Conflict in Mobile Cloud Storage</h3>
+          <ul>
+            <li><strong>Cloud Provider Compromises:</strong> Outsourcing photos and documents to Google Drive, Dropbox, or S3 exposes data to data breaches and insider harvesting.</li>
+            <li><strong>The Search Dilemma:</strong> Traditional client-side encryption renders files into opaque blobs, breaking keyword search.</li>
+            <li><strong>Client Resource Limits:</strong> Downloading and decrypting the entire database locally for every search drains phone battery and network quota.</li>
+            <li><strong>The Volume Leakage Threat:</strong> Standard Searchable Symmetric Encryption (SSE) reveals how many files match each query. Statistical adversaries exploit this volume pattern to reconstruct private search queries.</li>
+          </ul>
+        </div>
+        <div class="figure-container">
+          <img src="../writing_paper/figures/fig_volume_padding.png" alt="Volume Padding">
+          <div class="figure-caption">Figure: Unpadded volume distributions reveal file cardinality vs. Power-of-Two quantization.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Architecture -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <div class="slide-number">02 / SYSTEM ARCHITECTURE</div>
+        <h2 class="slide-title">End-to-End Cryptographic Architecture</h2>
+      </div>
+      <div class="slide-body full-width">
+        <div class="figure-container" style="height: 100%;">
+          <img src="../writing_paper/figures/fig_architecture.png" alt="Architecture" style="max-height: 430px;">
+          <div class="figure-caption">Figure: VisioCrypt Architecture — Mobile Client (ARM TrustZone + Dart Isolate) vs. Honest-but-Curious Cloud Server.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Cryptographic Primitives -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <div class="slide-number">03 / CRYPTOGRAPHIC ENGINE</div>
+        <h2 class="slide-title">Domain-Separated Cryptographic Construction</h2>
+      </div>
+      <div class="slide-body">
+        <div class="card">
+          <h3>🔑 4-Way HKDF-SHA256 Key Derivation</h3>
+          <p style="color: #94a3b8; margin-bottom: 14px;">Derived from hardware-backed master secret <code>K</code>:</p>
+          <ul>
+            <li><strong>$K_{\text{enc}}$ (File Stream Encryption):</strong> AES-CTR-256 with HMAC integrity.</li>
+            <li><strong>$K_{\text{search}}$ (Search Trapdoors):</strong> $T_w \leftarrow \text{HMAC-SHA256}(w)$.</li>
+            <li><strong>$K_{\text{index}}$ (Payload Encryption):</strong> AES-GCM-256 authenticated index blocks.</li>
+            <li><strong>$K_{\text{update}}$ (Versioned Dynamic PRF):</strong> Unlinkable dynamic additions.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🛡️ Formal Security Guarantees</h3>
+          <ul>
+            <li><strong>$\mathcal{L}_{\text{dyn-VH}}\text{-IND-CKA2}$ Security:</strong> Proven adaptively secure against chosen-keyword attacks via game hopping.</li>
+            <li><strong>Forward Privacy:</strong> Versioned state tokens ($V[w]$) ensure past searches cannot be linked to newly uploaded files.</li>
+            <li><strong>Type-II Backward Privacy:</strong> Deleted documents are immediately removed from search results without revealing cancellation pairings to the server.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Dynamic Deletions & Memory Hygiene -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <div class="slide-number">04 / PRIVACY & MEMORY HYGIENE</div>
+        <h2 class="slide-title">Local Bloom Filter & Mobile Heap Protection</h2>
+      </div>
+      <div class="slide-body">
+        <div class="card">
+          <h3>🌸 Local Bloom Filter Deletions</h3>
+          <ul>
+            <li><strong>Sub-Millisecond Execution:</strong> Dynamic deletions are inserted into an in-memory Bloom filter ($117\text{ KB}$, $P_e \le 10^{-4}$).</li>
+            <li><strong>Zero Network Roundtrips:</strong> Handset filters deleted document IDs locally during query decryption in <strong>$< 0.08\text{ ms}$</strong> without contacting the cloud.</li>
+            <li><strong>Eliminates ORAM:</strong> Bypasses heavy multi-round oblivious RAM reconstruction.</li>
+          </ul>
+        </div>
+        <div class="figure-container">
+          <img src="../writing_paper/figures/lst_isolate.png" alt="Dart Isolate Zeroization">
+          <div class="figure-caption">Figure: Dart VM Isolate with active typed byte-array <code>.fillRange(0, len, 0)</code> zeroization.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Search Latency Benchmarks -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <div class="slide-number">05 / EMPIRICAL BENCHMARKS</div>
+        <h2 class="slide-title">Multi-Device Search Latency Evaluation</h2>
+      </div>
+      <div class="slide-body">
+        <div class="figure-container">
+          <img src="../writing_paper/figures/fig_search_latency.png" alt="Search Latency">
+          <div class="figure-caption">Figure: Search execution time across 4 mobile tiers (10,000 keyword dictionary).</div>
+        </div>
+        <div class="card">
+          <h3>⚡ Key Empirical Findings</h3>
+          <ul>
+            <li><strong>Sub-Millisecond Flagship Search:</strong> <strong>0.23 ms</strong> on Redmi K80 (Snapdragon 8 Gen 3) and <strong>0.29 ms</strong> on Redmi Turbo 4 Pro.</li>
+            <li><strong>Low-End Mobile Efficiency:</strong> <strong>1.48 ms</strong> on Galaxy A14 ($12,600\times$ faster than linear scan).</li>
+            <li><strong>Negligible Volume Overhead:</strong> Quantization adds only $+0.02\text{ ms}$ to $+0.06\text{ ms}$ latency over raw unpadded SSE.</li>
+            <li><strong>Ultra-Low Battery Drain:</strong> 1,000 searches consume only <strong>1.85 mJ</strong> ($< 0.001\%$ battery).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: State of the Art Comparison -->
+    <div class="slide" id="slide-7">
+      <div class="slide-header">
+        <div class="slide-number">06 / COMPARATIVE ANALYSIS</div>
+        <h2 class="slide-title">VisioCrypt vs. State-of-the-Art Works</h2>
+      </div>
+      <div class="slide-body full-width">
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scheme</th>
+                  <th>Year</th>
+                  <th>Complexity</th>
+                  <th>Dynamic</th>
+                  <th>Volume Protection</th>
+                  <th>Forward Priv.</th>
+                  <th>Backward Priv.</th>
+                  <th>Hardware Root</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Song et al.</td>
+                  <td>2000</td>
+                  <td>$\mathcal{O}(N)$ Linear</td>
+                  <td>No</td>
+                  <td><span class="badge badge-amber">No</span></td>
+                  <td>No</td>
+                  <td>No</td>
+                  <td>None</td>
+                </tr>
+                <tr>
+                  <td>SEAL (Demertzis et al.)</td>
+                  <td>2020</td>
+                  <td>$\mathcal{O}(|L_w|)$ Sub-linear</td>
+                  <td>Yes</td>
+                  <td><span class="badge badge-blue">Batch ($x$)</span></td>
+                  <td>Yes</td>
+                  <td>Type-II</td>
+                  <td>None</td>
+                </tr>
+                <tr>
+                  <td>SWAT (Ihsan et al.)</td>
+                  <td>2024</td>
+                  <td>$\mathcal{O}(|L_w|)$ Sub-linear</td>
+                  <td>Yes</td>
+                  <td><span class="badge badge-blue">Bucket Partition</span></td>
+                  <td>Heuristic</td>
+                  <td>No</td>
+                  <td>Server Intel SGX</td>
+                </tr>
+                <tr>
+                  <td>SGX-SE2 (Liu et al.)</td>
+                  <td>2021</td>
+                  <td>$\mathcal{O}(|L_w|)$ Sub-linear</td>
+                  <td>Yes</td>
+                  <td><span class="badge badge-amber">No</span></td>
+                  <td>Yes</td>
+                  <td>Type-II</td>
+                  <td>Server Intel SGX</td>
+                </tr>
+                <tr class="highlight">
+                  <td><strong>VisioCrypt (Ours)</strong></td>
+                  <td><strong>2026</strong></td>
+                  <td><strong>$\mathcal{O}(|L_w|)$ Sub-linear</strong></td>
+                  <td><strong>Yes</strong></td>
+                  <td><span class="badge badge-green">Power-of-Two ($\Phi$)</span></td>
+                  <td><span class="badge badge-green">Yes</span></td>
+                  <td><span class="badge badge-green">Type-II (Client BF)</span></td>
+                  <td><span class="badge badge-green">ARM TrustZone</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Conclusion -->
+    <div class="slide" id="slide-8">
+      <div class="slide-header" style="text-align: center;">
+        <div class="slide-number">07 / SUMMARY & DEFENSE CONCLUSION</div>
+        <h2 class="slide-title">Conclusion & Scientific Impact</h2>
+      </div>
+      <div class="slide-body">
+        <div class="card">
+          <h3>🎓 Summary of Novel Contributions</h3>
+          <ol style="padding-left: 20px; color: #cbd5e1; line-height: 1.7;">
+            <li><strong>First Practical Client-Side Volume-Hiding Scheme:</strong> Protects against statistical leakage-abuse without server enclaves.</li>
+            <li><strong>Zero Server Modifications:</strong> Operates natively over standard cloud buckets (AWS S3, Google Drive).</li>
+            <li><strong>Client-Side Dynamic Deletions:</strong> Sub-millisecond ($< 0.08\text{ ms}$) Bloom filter verification.</li>
+            <li><strong>End-to-End Memory Hygiene:</strong> Dart Isolate buffer zeroization bounding key exposure in RAM.</li>
+          </ol>
+        </div>
+        <div class="card" style="text-align: center; display: flex; flex-direction: column; justify-content: center;">
+          <h2 style="font-size: 2.2rem; color: var(--accent-cyan); margin-bottom: 12px;">Questions & Discussion</h2>
+          <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 24px;">Thank you for your time and feedback.</p>
+          <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid var(--accent-cyan); padding: 14px; border-radius: 10px; font-family: 'Fira Code', monospace; color: #ffffff;">
+            Project Artifacts: 6-Page IEEE Paper & Mobile Testbed
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="prev-btn">◀ Previous</button>
+    <div class="slide-indicator" id="indicator">Slide 1 / 8</div>
+    <button class="btn" id="next-btn">Next ▶</button>
+    <button class="btn" id="fs-btn" style="background: rgba(0, 212, 255, 0.2); color: var(--accent-cyan);">⛶ Fullscreen</button>
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 8;
+
+    function showSlide(n) {
+      document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+      const active = document.getElementById(`slide-${n}`);
+      if (active) {
+        active.classList.add('active');
+        document.getElementById('indicator').innerText = `Slide ${n} / ${totalSlides}`;
+        currentSlide = n;
+      }
+    }
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+      if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+    });
+
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      if (currentSlide > 1) showSlide(currentSlide - 1);
+    });
+
+    document.getElementById('fs-btn').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert(err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft') {
+        if (currentSlide > 1) showSlide(currentSlide - 1);
+      }
+    });
+  </script>
+</body>
+</html>

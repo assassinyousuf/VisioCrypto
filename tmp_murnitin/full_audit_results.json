@@ -1,0 +1,1872 @@
+{
+  "score": 13,
+  "direct": 10,
+  "polished": 33,
+  "human": 164,
+  "total": 207,
+  "sentences": [
+    {
+      "idx": 1,
+      "cls": "POLISHED",
+      "comb": 0.553,
+      "ahmed": 0.993,
+      "fakespot": 0.16,
+      "openai": 0.004,
+      "text": "VisioCrypt: A TEE-Anchored Client-Side Searchable Encryption Scheme with Dynamic V olume-Hiding Padding for Mobile Cloud Storage Anonymous Author(s) Abstract\u2014Most of us back up personal photos and files onto Google Drive or Dropbox without thinking twice."
+    },
+    {
+      "idx": 2,
+      "cls": "HUMAN",
+      "comb": 0.111,
+      "ahmed": 0.004,
+      "fakespot": 0.207,
+      "openai": 0.246,
+      "text": "Yet handing raw data over to cloud companies exposes everything if those servers get breached."
+    },
+    {
+      "idx": 3,
+      "cls": "HUMAN",
+      "comb": 0.03,
+      "ahmed": 0.007,
+      "fakespot": 0.031,
+      "openai": 0.108,
+      "text": "Encrypting everything locally sounds great until someone needs to search for an old receipt."
+    },
+    {
+      "idx": 4,
+      "cls": "HUMAN",
+      "comb": 0.025,
+      "ahmed": 0.038,
+      "fakespot": 0.007,
+      "openai": 0.021,
+      "text": "Downloading the entire database to the phone for every single search burns mobile data and drains the battery."
+    },
+    {
+      "idx": 5,
+      "cls": "HUMAN",
+      "comb": 0.13,
+      "ahmed": 0.116,
+      "fakespot": 0.126,
+      "openai": 0.185,
+      "text": "Instead, the phone sends encrypted search tokens so the cloud finds files blindly."
+    },
+    {
+      "idx": 6,
+      "cls": "HUMAN",
+      "comb": 0.036,
+      "ahmed": 0.011,
+      "fakespot": 0.034,
+      "openai": 0.126,
+      "text": "The catch is that normal search tells the server how many files matched."
+    },
+    {
+      "idx": 7,
+      "cls": "HUMAN",
+      "comb": 0.071,
+      "ahmed": 0.064,
+      "fakespot": 0.02,
+      "openai": 0.213,
+      "text": "A nosy cloud admin can watch these numbers over time to figure out what someone is looking for."
+    },
+    {
+      "idx": 8,
+      "cls": "HUMAN",
+      "comb": 0.113,
+      "ahmed": 0.2,
+      "fakespot": 0.016,
+      "openai": 0.054,
+      "text": "We stop this by padding result lists up to powers of two."
+    },
+    {
+      "idx": 9,
+      "cls": "HUMAN",
+      "comb": 0.079,
+      "ahmed": 0.028,
+      "fakespot": 0.07,
+      "openai": 0.273,
+      "text": "Because every result size looks the same, the server cannot tell common words apart from rare ones."
+    },
+    {
+      "idx": 10,
+      "cls": "HUMAN",
+      "comb": 0.109,
+      "ahmed": 0.005,
+      "fakespot": 0.038,
+      "openai": 0.618,
+      "text": "The server only ever sees bucket sizes of four, eight, sixteen, or thirtytwo items."
+    },
+    {
+      "idx": 11,
+      "cls": "HUMAN",
+      "comb": 0.167,
+      "ahmed": 0.075,
+      "fakespot": 0.016,
+      "openai": 0.83,
+      "text": "We enforce a lower floor of four items on smaller candidate lists."
+    },
+    {
+      "idx": 12,
+      "cls": "HUMAN",
+      "comb": 0.092,
+      "ahmed": 0.008,
+      "fakespot": 0.012,
+      "openai": 0.555,
+      "text": "Deleted files get recorded in a local phone filter without alerting the cloud."
+    },
+    {
+      "idx": 13,
+      "cls": "HUMAN",
+      "comb": 0.099,
+      "ahmed": 0.01,
+      "fakespot": 0.037,
+      "openai": 0.541,
+      "text": "Every new file gets a fresh version number so nobody can link it to older queries."
+    },
+    {
+      "idx": 14,
+      "cls": "HUMAN",
+      "comb": 0.244,
+      "ahmed": 0.444,
+      "fakespot": 0.028,
+      "openai": 0.084,
+      "text": "Random pauses between queries stop eavesdroppers from tracking search timing."
+    },
+    {
+      "idx": 15,
+      "cls": "HUMAN",
+      "comb": 0.025,
+      "ahmed": 0.02,
+      "fakespot": 0.027,
+      "openai": 0.038,
+      "text": "On Android, runtime garbage collection lets discarded keys sit in phone RAM for minutes."
+    },
+    {
+      "idx": 16,
+      "cls": "HUMAN",
+      "comb": 0.036,
+      "ahmed": 0.04,
+      "fakespot": 0.017,
+      "openai": 0.07,
+      "text": "We wipe key arrays in RAM with zeros right after every cipher call."
+    },
+    {
+      "idx": 17,
+      "cls": "HUMAN",
+      "comb": 0.021,
+      "ahmed": 0.018,
+      "fakespot": 0.023,
+      "openai": 0.026,
+      "text": "Our root key stays locked inside ARM TrustZone behind a fingerprint sensor."
+    },
+    {
+      "idx": 18,
+      "cls": "HUMAN",
+      "comb": 0.078,
+      "ahmed": 0.027,
+      "fakespot": 0.035,
+      "openai": 0.346,
+      "text": "Our security proof confirms that search tokens leak nothing to attackers."
+    },
+    {
+      "idx": 19,
+      "cls": "HUMAN",
+      "comb": 0.151,
+      "ahmed": 0.039,
+      "fakespot": 0.227,
+      "openai": 0.35,
+      "text": "We wrote the app in Dart and ran tests on four Android phones."
+    },
+    {
+      "idx": 20,
+      "cls": "HUMAN",
+      "comb": 0.257,
+      "ahmed": 0.445,
+      "fakespot": 0.007,
+      "openai": 0.21,
+      "text": "File encryption hit 310 megabytes per second on the Redmi K80."
+    },
+    {
+      "idx": 21,
+      "cls": "HUMAN",
+      "comb": 0.142,
+      "ahmed": 0.237,
+      "fakespot": 0.024,
+      "openai": 0.097,
+      "text": "Looking up words took 0.23 milliseconds on the K80 and 1.48 milliseconds on the Galaxy A14."
+    },
+    {
+      "idx": 22,
+      "cls": "HUMAN",
+      "comb": 0.18,
+      "ahmed": 0.242,
+      "fakespot": 0.023,
+      "openai": 0.34,
+      "text": "Our in-memory Bloom filter handled over twenty-two thousand membership checks per millisecond."
+    },
+    {
+      "idx": 23,
+      "cls": "HUMAN",
+      "comb": 0.115,
+      "ahmed": 0.157,
+      "fakespot": 0.011,
+      "openai": 0.218,
+      "text": "The extra index entries take up barely a few megabytes on flash storage."
+    },
+    {
+      "idx": 24,
+      "cls": "POLISHED",
+      "comb": 0.582,
+      "ahmed": 0.996,
+      "fakespot": 0.002,
+      "openai": 0.556,
+      "text": "Index Terms\u2014Mobile storage security, encrypted search, dynamic volume hiding, hardware enclaves, memory safety."
+    },
+    {
+      "idx": 25,
+      "cls": "HUMAN",
+      "comb": 0.044,
+      "ahmed": 0.003,
+      "fakespot": 0.014,
+      "openai": 0.25,
+      "text": "INTRODUCTION We store everything from family photos to bank statements on our phones."
+    },
+    {
+      "idx": 26,
+      "cls": "HUMAN",
+      "comb": 0.112,
+      "ahmed": 0.079,
+      "fakespot": 0.1,
+      "openai": 0.246,
+      "text": "Backing up files to Google Drive or Dropbox feels natural and convenient."
+    },
+    {
+      "idx": 27,
+      "cls": "HUMAN",
+      "comb": 0.025,
+      "ahmed": 0.002,
+      "fakespot": 0.012,
+      "openai": 0.131,
+      "text": "If Dropbox or Google servers get hacked, all those personal files leak out in plain text , ."
+    },
+    {
+      "idx": 28,
+      "cls": "HUMAN",
+      "comb": 0.161,
+      "ahmed": 0.219,
+      "fakespot": 0.04,
+      "openai": 0.251,
+      "text": "Encrypting files on the phone protects data before it ever hits the internet."
+    },
+    {
+      "idx": 29,
+      "cls": "HUMAN",
+      "comb": 0.181,
+      "ahmed": 0.064,
+      "fakespot": 0.118,
+      "openai": 0.715,
+      "text": "Finding an old receipt inside an encrypted archive is surprisingly painful."
+    },
+    {
+      "idx": 30,
+      "cls": "HUMAN",
+      "comb": 0.005,
+      "ahmed": 0.002,
+      "fakespot": 0.004,
+      "openai": 0.015,
+      "text": "Downloading the whole archive just to run a search on the phone drains mobile data and kills the battery."
+    },
+    {
+      "idx": 31,
+      "cls": "HUMAN",
+      "comb": 0.069,
+      "ahmed": 0.023,
+      "fakespot": 0.006,
+      "openai": 0.369,
+      "text": "Searchable ciphers let the cloud search files without reading our plain text , ."
+    },
+    {
+      "idx": 32,
+      "cls": "HUMAN",
+      "comb": 0.264,
+      "ahmed": 0.384,
+      "fakespot": 0.027,
+      "openai": 0.418,
+      "text": "Unfortunately, cloud servers still count how many files match each search."
+    },
+    {
+      "idx": 33,
+      "cls": "HUMAN",
+      "comb": 0.135,
+      "ahmed": 0.019,
+      "fakespot": 0.013,
+      "openai": 0.808,
+      "text": "A rogue admin watching these numbers can quickly guess what words we searched for \u2013."
+    },
+    {
+      "idx": 34,
+      "cls": "HUMAN",
+      "comb": 0.024,
+      "ahmed": 0.006,
+      "fakespot": 0.006,
+      "openai": 0.128,
+      "text": "Sending the same token repeatedly also lets eavesdroppers map out search habits , ."
+    },
+    {
+      "idx": 35,
+      "cls": "HUMAN",
+      "comb": 0.018,
+      "ahmed": 0.011,
+      "fakespot": 0.014,
+      "openai": 0.053,
+      "text": "On Android, runtime garbage collection lets discarded keys sit in memory for minutes , ."
+    },
+    {
+      "idx": 36,
+      "cls": "HUMAN",
+      "comb": 0.095,
+      "ahmed": 0.148,
+      "fakespot": 0.01,
+      "openai": 0.116,
+      "text": "We built VisioCrypt to keep phone searches safe from cloud snooping."
+    },
+    {
+      "idx": 37,
+      "cls": "HUMAN",
+      "comb": 0.02,
+      "ahmed": 0.008,
+      "fakespot": 0.011,
+      "openai": 0.08,
+      "text": "We pad search results to powers of two so the cloud cannot track match counts."
+    },
+    {
+      "idx": 38,
+      "cls": "HUMAN",
+      "comb": 0.035,
+      "ahmed": 0.017,
+      "fakespot": 0.007,
+      "openai": 0.157,
+      "text": "We track new and deleted files locally so the cloud learns nothing about updates."
+    },
+    {
+      "idx": 39,
+      "cls": "HUMAN",
+      "comb": 0.015,
+      "ahmed": 0.01,
+      "fakespot": 0.009,
+      "openai": 0.049,
+      "text": "We wipe secret keys from RAM with zeros right after every cipher call."
+    },
+    {
+      "idx": 40,
+      "cls": "HUMAN",
+      "comb": 0.017,
+      "ahmed": 0.017,
+      "fakespot": 0.013,
+      "openai": 0.029,
+      "text": "We anchor root keys inside ARM TrustZone behind a fingerprint sensor."
+    },
+    {
+      "idx": 41,
+      "cls": "HUMAN",
+      "comb": 0.069,
+      "ahmed": 0.036,
+      "fakespot": 0.132,
+      "openai": 0.034,
+      "text": "We tested lookups on four real phones, getting sub-millisecond results with barely any battery use."
+    },
+    {
+      "idx": 42,
+      "cls": "HUMAN",
+      "comb": 0.067,
+      "ahmed": 0.013,
+      "fakespot": 0.016,
+      "openai": 0.37,
+      "text": "Song showed how to search encrypted files without decrypting them , , ."
+    },
+    {
+      "idx": 43,
+      "cls": "HUMAN",
+      "comb": 0.172,
+      "ahmed": 0.22,
+      "fakespot": 0.005,
+      "openai": 0.399,
+      "text": "Cash made boolean queries fast across large indexes ."
+    },
+    {
+      "idx": 44,
+      "cls": "POLISHED",
+      "comb": 0.549,
+      "ahmed": 0.984,
+      "fakespot": 0.012,
+      "openai": 0.35,
+      "text": "Leakage-Abuse Attacks and Volume Mitigation."
+    },
+    {
+      "idx": 45,
+      "cls": "HUMAN",
+      "comb": 0.272,
+      "ahmed": 0.443,
+      "fakespot": 0.008,
+      "openai": 0.315,
+      "text": "Watching search match counts lets attackers reconstruct full databases \u2013, , ."
+    },
+    {
+      "idx": 46,
+      "cls": "HUMAN",
+      "comb": 0.145,
+      "ahmed": 0.13,
+      "fakespot": 0.007,
+      "openai": 0.518,
+      "text": "Schemes like SEAL and SW AT tried grouping results into bins to limit volume leakage , , ."
+    },
+    {
+      "idx": 47,
+      "cls": "HUMAN",
+      "comb": 0.063,
+      "ahmed": 0.01,
+      "fakespot": 0.006,
+      "openai": 0.371,
+      "text": "Our scheme rounds search lists to powers of two on the phone without needing cloud enclaves ."
+    },
+    {
+      "idx": 48,
+      "cls": "HUMAN",
+      "comb": 0.163,
+      "ahmed": 0.082,
+      "fakespot": 0.004,
+      "openai": 0.804,
+      "text": "Forward and Backward Privacy."
+    },
+    {
+      "idx": 49,
+      "cls": "HUMAN",
+      "comb": 0.041,
+      "ahmed": 0.023,
+      "fakespot": 0.01,
+      "openai": 0.174,
+      "text": "Sophos added forward privacy so old queries never find newly added files ."
+    },
+    {
+      "idx": 50,
+      "cls": "HUMAN",
+      "comb": 0.153,
+      "ahmed": 0.04,
+      "fakespot": 0.015,
+      "openai": 0.848,
+      "text": "Diana added backward privacy so deleted documents stay hidden from future searches ."
+    },
+    {
+      "idx": 51,
+      "cls": "HUMAN",
+      "comb": 0.129,
+      "ahmed": 0.241,
+      "fakespot": 0.012,
+      "openai": 0.028,
+      "text": "Our phone tracks file updates locally using version counters and a Bloom filter."
+    },
+    {
+      "idx": 52,
+      "cls": "POLISHED",
+      "comb": 0.585,
+      "ahmed": 0.98,
+      "fakespot": 0.002,
+      "openai": 0.627,
+      "text": "Hardware-Assisted Security and Mobile Memory Hygiene."
+    },
+    {
+      "idx": 53,
+      "cls": "HUMAN",
+      "comb": 0.018,
+      "ahmed": 0.025,
+      "fakespot": 0.004,
+      "openai": 0.03,
+      "text": "VisioLock locks secret keys to physical phone hardware ."
+    },
+    {
+      "idx": 54,
+      "cls": "HUMAN",
+      "comb": 0.073,
+      "ahmed": 0.008,
+      "fakespot": 0.069,
+      "openai": 0.298,
+      "text": "Other researchers tried running searchable encryption inside ARM TrustZone enclaves , , ."
+    },
+    {
+      "idx": 55,
+      "cls": "HUMAN",
+      "comb": 0.118,
+      "ahmed": 0.008,
+      "fakespot": 0.234,
+      "openai": 0.215,
+      "text": "Surprisingly, few works investigate how long secret keys linger inside phone RAM after searches finish."
+    },
+    {
+      "idx": 56,
+      "cls": "HUMAN",
+      "comb": 0.036,
+      "ahmed": 0.04,
+      "fakespot": 0.017,
+      "openai": 0.07,
+      "text": "We wipe key arrays in RAM with zeros right after every cipher call."
+    },
+    {
+      "idx": 57,
+      "cls": "HUMAN",
+      "comb": 0.23,
+      "ahmed": 0.078,
+      "fakespot": 0.288,
+      "openai": 0.606,
+      "text": "We compare our system with older designs in Table I."
+    },
+    {
+      "idx": 58,
+      "cls": "HUMAN",
+      "comb": 0.039,
+      "ahmed": 0.014,
+      "fakespot": 0.002,
+      "openai": 0.206,
+      "text": "System Architecture Our setup connects a phone to an untrusted storage server."
+    },
+    {
+      "idx": 59,
+      "cls": "HUMAN",
+      "comb": 0.12,
+      "ahmed": 0.037,
+      "fakespot": 0.073,
+      "openai": 0.505,
+      "text": "We store encrypted files in the cloud and search them from the phone."
+    },
+    {
+      "idx": 60,
+      "cls": "POLISHED",
+      "comb": 0.313,
+      "ahmed": 0.086,
+      "fakespot": 0.576,
+      "openai": 0.455,
+      "text": "Figure 1 shows the trust boundaries in our setup."
+    },
+    {
+      "idx": 61,
+      "cls": "HUMAN",
+      "comb": 0.205,
+      "ahmed": 0.123,
+      "fakespot": 0.016,
+      "openai": 0.922,
+      "text": "Our phone keeps the root key inside ARM TrustZone and runs TABLE I QUALITATIVECOMPARISON OFSEARCHABLESYMMETRICENCRYPTIONSCHEMES."
+    },
+    {
+      "idx": 62,
+      "cls": "POLISHED",
+      "comb": 0.532,
+      "ahmed": 0.97,
+      "fakespot": 0.024,
+      "openai": 0.26,
+      "text": "VisioCrypt mobile-cloud system architecture."
+    },
+    {
+      "idx": 63,
+      "cls": "HUMAN",
+      "comb": 0.15,
+      "ahmed": 0.174,
+      "fakespot": 0.034,
+      "openai": 0.343,
+      "text": "Our network channel inserts tiny random delays to hide traffic patterns."
+    },
+    {
+      "idx": 64,
+      "cls": "HUMAN",
+      "comb": 0.203,
+      "ahmed": 0.224,
+      "fakespot": 0.069,
+      "openai": 0.444,
+      "text": "The cloud holds our encrypted index entries and document ciphertexts."
+    },
+    {
+      "idx": 65,
+      "cls": "HUMAN",
+      "comb": 0.146,
+      "ahmed": 0.001,
+      "fakespot": 0.015,
+      "openai": 0.931,
+      "text": "Threat Model We assume the cloud server is honest but curious."
+    },
+    {
+      "idx": 66,
+      "cls": "HUMAN",
+      "comb": 0.176,
+      "ahmed": 0.24,
+      "fakespot": 0.072,
+      "openai": 0.204,
+      "text": "The remote server runs search routines properly but inspects stored records to guess what we are searching for."
+    },
+    {
+      "idx": 67,
+      "cls": "HUMAN",
+      "comb": 0.21,
+      "ahmed": 0.194,
+      "fakespot": 0.282,
+      "openai": 0.095,
+      "text": "An attacker with physical access to the phone might dump RAM to steal keys."
+    },
+    {
+      "idx": 68,
+      "cls": "DIRECT",
+      "comb": 0.601,
+      "ahmed": 0.925,
+      "fakespot": 0.011,
+      "openai": 0.899,
+      "text": "Formal Syntax of DVH-SSE We build our encrypted search scheme around six operations."
+    },
+    {
+      "idx": 69,
+      "cls": "HUMAN",
+      "comb": 0.14,
+      "ahmed": 0.135,
+      "fakespot": 0.018,
+      "openai": 0.442,
+      "text": "Key generation creates master secrets inside the phone hardware enclave."
+    },
+    {
+      "idx": 70,
+      "cls": "HUMAN",
+      "comb": 0.198,
+      "ahmed": 0.049,
+      "fakespot": 0.113,
+      "openai": 0.893,
+      "text": "We make an encrypted search table and a local filter on the phone."
+    },
+    {
+      "idx": 71,
+      "cls": "HUMAN",
+      "comb": 0.233,
+      "ahmed": 0.364,
+      "fakespot": 0.042,
+      "openai": 0.24,
+      "text": "Trapdoors turn keywords into encrypted search tags."
+    },
+    {
+      "idx": 72,
+      "cls": "HUMAN",
+      "comb": 0.107,
+      "ahmed": 0.07,
+      "fakespot": 0.018,
+      "openai": 0.44,
+      "text": "Search finds the matching bucket on the remote server."
+    },
+    {
+      "idx": 73,
+      "cls": "HUMAN",
+      "comb": 0.035,
+      "ahmed": 0.03,
+      "fakespot": 0.005,
+      "openai": 0.126,
+      "text": "File changes get written to encrypted delta records and tracked in our filter."
+    },
+    {
+      "idx": 74,
+      "cls": "HUMAN",
+      "comb": 0.053,
+      "ahmed": 0.071,
+      "fakespot": 0.008,
+      "openai": 0.095,
+      "text": "Decryption turns downloaded ciphertexts back into plain files on the phone."
+    },
+    {
+      "idx": 75,
+      "cls": "POLISHED",
+      "comb": 0.464,
+      "ahmed": 0.924,
+      "fakespot": 0.004,
+      "openai": 0.002,
+      "text": "Leakage Profile The information leaked to the cloud is parameterized by leakage functionsL dyn-VH = (Lsetup,L search,L update): Fig."
+    },
+    {
+      "idx": 76,
+      "cls": "POLISHED",
+      "comb": 0.402,
+      "ahmed": 0.631,
+      "fakespot": 0.018,
+      "openai": 0.535,
+      "text": "V olume padding comparison between unpadded searches and powerof-two padding."
+    },
+    {
+      "idx": 77,
+      "cls": "HUMAN",
+      "comb": 0.182,
+      "ahmed": 0.08,
+      "fakespot": 0.017,
+      "openai": 0.911,
+      "text": "Our leakage profile tells the cloud only total file counts and power-of-two bucket sizes."
+    },
+    {
+      "idx": 78,
+      "cls": "HUMAN",
+      "comb": 0.117,
+      "ahmed": 0.015,
+      "fakespot": 0.072,
+      "openai": 0.559,
+      "text": "The cloud server never sees how many files match each keyword."
+    },
+    {
+      "idx": 79,
+      "cls": "DIRECT",
+      "comb": 0.801,
+      "ahmed": 0.994,
+      "fakespot": 0.656,
+      "openai": 0.498,
+      "text": "Definition 1(L dyn-VH-IND-CKA2 Security).A DVH-SSE scheme is adaptively secure under leakage profileLdyn-VH if for any probabilistic polynomial-time (PPT) adversaryA, there exists a PPT simulatorSsuch that: \f\fPr[RealSSE A (k) = 1]\u2212Pr[Ideal L A,S (k) = 1] \f\f \u2264negl(k)(1) IV."
+    },
+    {
+      "idx": 80,
+      "cls": "POLISHED",
+      "comb": 0.501,
+      "ahmed": 0.997,
+      "fakespot": 0.003,
+      "openai": 0.012,
+      "text": "Master Key Derivation The phone derives four separate sub-keys from root secret Kusing HKDF-SHA256: Unique salt labels guarantee that each derived key handles a single cryptographic task."
+    },
+    {
+      "idx": 81,
+      "cls": "POLISHED",
+      "comb": 0.32,
+      "ahmed": 0.363,
+      "fakespot": 0.004,
+      "openai": 0.916,
+      "text": "Power-of-Two Volume-Hiding Padding Policy To stop match count leakage, the phone pads candidate lists to powers of two."
+    },
+    {
+      "idx": 82,
+      "cls": "HUMAN",
+      "comb": 0.108,
+      "ahmed": 0.071,
+      "fakespot": 0.078,
+      "openai": 0.302,
+      "text": "We add dummy entries so every result list has four, eight, sixteen, or thirty-two items."
+    },
+    {
+      "idx": 83,
+      "cls": "HUMAN",
+      "comb": 0.03,
+      "ahmed": 0.036,
+      "fakespot": 0.014,
+      "openai": 0.05,
+      "text": "Rare words stay hidden because list sizes look identical across terms."
+    },
+    {
+      "idx": 84,
+      "cls": "HUMAN",
+      "comb": 0.05,
+      "ahmed": 0.053,
+      "fakespot": 0.014,
+      "openai": 0.123,
+      "text": "This completely hides exact match counts from the remote server."
+    },
+    {
+      "idx": 85,
+      "cls": "HUMAN",
+      "comb": 0.162,
+      "ahmed": 0.2,
+      "fakespot": 0.043,
+      "openai": 0.311,
+      "text": "The cloud server observes only uniform bucket sizes of four, eight, sixteen, or thirty-two items."
+    },
+    {
+      "idx": 86,
+      "cls": "POLISHED",
+      "comb": 0.561,
+      "ahmed": 0.997,
+      "fakespot": 0.066,
+      "openai": 0.263,
+      "text": "Algorithmic Workflows Algorithms 1, 2, and 3 detail our core cryptographic operations."
+    },
+    {
+      "idx": 87,
+      "cls": "POLISHED",
+      "comb": 0.45,
+      "ahmed": 0.859,
+      "fakespot": 0.002,
+      "openai": 0.134,
+      "text": "Dynamic Deletion Handling via Local Bloom Filter Deleted files get saved in a local phone filter without notifying the remote server."
+    },
+    {
+      "idx": 88,
+      "cls": "HUMAN",
+      "comb": 0.27,
+      "ahmed": 0.375,
+      "fakespot": 0.01,
+      "openai": 0.526,
+      "text": "For fifty thousand deleted keyword pairs with low error rate: Our Bloom filter parameters keep false positive rates below one in ten thousand."
+    },
+    {
+      "idx": 89,
+      "cls": "HUMAN",
+      "comb": 0.067,
+      "ahmed": 0.046,
+      "fakespot": 0.014,
+      "openai": 0.261,
+      "text": "Our phone filters deleted files in under 0.05 milliseconds with tiny memory overhead."
+    },
+    {
+      "idx": 90,
+      "cls": "POLISHED",
+      "comb": 0.568,
+      "ahmed": 0.998,
+      "fakespot": 0.016,
+      "openai": 0.42,
+      "text": "SECURITYANALYSIS Theorem 1.Assuming HMAC-SHA256 is a secure pseudorandom function (PRF), AES-CTR and AES-GCM provide semantic security under chosen-plaintext attacks (IND-CPA), and the Bloom filter error rate satisfiesP e \u226410 \u22124, the VisioCrypt scheme is adaptivelyL dyn-VH-IND-CKA2 secure."
+    },
+    {
+      "idx": 91,
+      "cls": "DIRECT",
+      "comb": 0.813,
+      "ahmed": 0.989,
+      "fakespot": 0.901,
+      "openai": 0.022,
+      "text": "Proof.We analyze our cipher against an adaptive adversary through a sequence of games: \u2022Game 0: The real DVH-SSE execution.Pr[Real SSE A = 1] = Pr[Game 0 = 1]."
+    },
+    {
+      "idx": 92,
+      "cls": "POLISHED",
+      "comb": 0.554,
+      "ahmed": 0.975,
+      "fakespot": 0.016,
+      "openai": 0.405,
+      "text": "\u2022Game 1: Replaces real search trapdoors with pseudorandom strings from a lazy-sampled table."
+    },
+    {
+      "idx": 93,
+      "cls": "DIRECT",
+      "comb": 0.725,
+      "ahmed": 0.976,
+      "fakespot": 0.272,
+      "openai": 0.945,
+      "text": "Any PPT differentiator yields an algorithmB 1 breaking PRF security: |Pr[Game 0]\u2212Pr[Game 1]| \u2264Adv PRF HMAC(B1)."
+    },
+    {
+      "idx": 94,
+      "cls": "POLISHED",
+      "comb": 0.569,
+      "ahmed": 0.973,
+      "fakespot": 0.011,
+      "openai": 0.522,
+      "text": "\u2022Game 2: Replaces document ciphertextsC i with uniform random noise of identical lengths."
+    },
+    {
+      "idx": 95,
+      "cls": "DIRECT",
+      "comb": 0.646,
+      "ahmed": 0.911,
+      "fakespot": 0.337,
+      "openai": 0.484,
+      "text": "By IND-CPA security of AES-CTR:|Pr[Game 1]\u2212Pr[Game 2]| \u2264Pn i=1 AdvCPA AES-CTR(B2,i)."
+    },
+    {
+      "idx": 96,
+      "cls": "DIRECT",
+      "comb": 0.617,
+      "ahmed": 0.986,
+      "fakespot": 0.031,
+      "openai": 0.755,
+      "text": "\u2022Game 3: Replaces encrypted multi-map payloads with encrypted zero blocks padded to|Pad(L w)|."
+    },
+    {
+      "idx": 97,
+      "cls": "DIRECT",
+      "comb": 0.6,
+      "ahmed": 0.916,
+      "fakespot": 0.235,
+      "openai": 0.401,
+      "text": "By IND-CPA security of AES-GCM:|Pr[Game 2]\u2212Pr[Game 3]| \u2264 AdvCPA AES-GCM(B3)."
+    },
+    {
+      "idx": 98,
+      "cls": "HUMAN",
+      "comb": 0.278,
+      "ahmed": 0.5,
+      "fakespot": 0.013,
+      "openai": 0.157,
+      "text": "\u2022Game 4: The ideal simulatorS(L dyn-VH)runs using only allowed leakage traces."
+    },
+    {
+      "idx": 99,
+      "cls": "POLISHED",
+      "comb": 0.572,
+      "ahmed": 0.984,
+      "fakespot": 0.173,
+      "openai": 0.127,
+      "text": "Because|Pad(L w)|produces identical distributions for any two candidate sets within the same power-of-two bin,Game 3 andGame 4 are statistically indistinguishable except for Bloom filter false positives:|Pr[Game 3]\u2212Pr[Game 4]| \u2264P e."
+    },
+    {
+      "idx": 100,
+      "cls": "HUMAN",
+      "comb": 0.097,
+      "ahmed": 0.109,
+      "fakespot": 0.033,
+      "openai": 0.209,
+      "text": "Every new file gets a fresh version number so nobody can link it to older queries, and deletions stay hidden inside the phone Bloom filter without leaking links to the cloud."
+    },
+    {
+      "idx": 101,
+      "cls": "HUMAN",
+      "comb": 0.081,
+      "ahmed": 0.049,
+      "fakespot": 0.024,
+      "openai": 0.326,
+      "text": "This completes our security proof."
+    },
+    {
+      "idx": 102,
+      "cls": "POLISHED",
+      "comb": 0.559,
+      "ahmed": 0.979,
+      "fakespot": 0.066,
+      "openai": 0.313,
+      "text": "MOBILESYSTEMSENGINEERING ANDMEMORY LIFECYCLE A."
+    },
+    {
+      "idx": 103,
+      "cls": "POLISHED",
+      "comb": 0.41,
+      "ahmed": 0.81,
+      "fakespot": 0.001,
+      "openai": 0.028,
+      "text": "Android ART Heap Vulnerabilities Default memory cleaners on Android leave discarded data buffers sitting in RAM for minutes."
+    },
+    {
+      "idx": 104,
+      "cls": "HUMAN",
+      "comb": 0.238,
+      "ahmed": 0.455,
+      "fakespot": 0.008,
+      "openai": 0.051,
+      "text": "Discarded key bytes can sit in physical RAM for minutes before getting reclaimed."
+    },
+    {
+      "idx": 105,
+      "cls": "HUMAN",
+      "comb": 0.265,
+      "ahmed": 0.501,
+      "fakespot": 0.002,
+      "openai": 0.091,
+      "text": "Background Dart Isolates and Constant-Time Zeroization We built VisioCrypt in Dart for Android devices."
+    },
+    {
+      "idx": 106,
+      "cls": "HUMAN",
+      "comb": 0.226,
+      "ahmed": 0.191,
+      "fakespot": 0.004,
+      "openai": 0.861,
+      "text": "We push heavy encryption loops onto background Dart Isolates so the screen stays responsive."
+    },
+    {
+      "idx": 107,
+      "cls": "HUMAN",
+      "comb": 0.018,
+      "ahmed": 0.009,
+      "fakespot": 0.012,
+      "openai": 0.061,
+      "text": "Listing 3 shows our isolate routine."
+    },
+    {
+      "idx": 108,
+      "cls": "HUMAN",
+      "comb": 0.054,
+      "ahmed": 0.077,
+      "fakespot": 0.021,
+      "openai": 0.052,
+      "text": "We store keys inside plain byte lists and zero out the entire buffer the moment cipher operations finish."
+    },
+    {
+      "idx": 109,
+      "cls": "HUMAN",
+      "comb": 0.245,
+      "ahmed": 0.41,
+      "fakespot": 0.11,
+      "openai": 0.012,
+      "text": "The phone clears key arrays from RAM the moment encryption finishes, while our root key stays locked inside ARM TrustZone behind a fingerprint sensor."
+    },
+    {
+      "idx": 110,
+      "cls": "HUMAN",
+      "comb": 0.039,
+      "ahmed": 0.043,
+      "fakespot": 0.008,
+      "openai": 0.098,
+      "text": "Experimental Hardware Testbed We benchmarked our app across four commercial Android phones shown in Table II."
+    },
+    {
+      "idx": 111,
+      "cls": "HUMAN",
+      "comb": 0.083,
+      "ahmed": 0.079,
+      "fakespot": 0.085,
+      "openai": 0.094,
+      "text": "We measured encryption throughput and battery draw across our four test phones."
+    },
+    {
+      "idx": 112,
+      "cls": "HUMAN",
+      "comb": 0.055,
+      "ahmed": 0.017,
+      "fakespot": 0.012,
+      "openai": 0.28,
+      "text": "Dart isolate worker and active RAM wipe."
+    },
+    {
+      "idx": 113,
+      "cls": "POLISHED",
+      "comb": 0.494,
+      "ahmed": 0.969,
+      "fakespot": 0.023,
+      "openai": 0.009,
+      "text": "File Encryption Throughput and Memory Lifetime On our fastest test phone, the Redmi K80, raw file encryption reached 310 megabytes per second (Table III)."
+    },
+    {
+      "idx": 114,
+      "cls": "HUMAN",
+      "comb": 0.035,
+      "ahmed": 0.057,
+      "fakespot": 0.005,
+      "openai": 0.031,
+      "text": "Streaming AES-CTR with HMAC gave us the fastest encryption speed across every handset."
+    },
+    {
+      "idx": 115,
+      "cls": "HUMAN",
+      "comb": 0.143,
+      "ahmed": 0.25,
+      "fakespot": 0.026,
+      "openai": 0.059,
+      "text": "Figure 4 shows our instant RAM wipe versus long garbage collection delays."
+    },
+    {
+      "idx": 116,
+      "cls": "POLISHED",
+      "comb": 0.504,
+      "ahmed": 0.969,
+      "fakespot": 0.01,
+      "openai": 0.107,
+      "text": "Multi-Device Search Query Latency Looking up words took0.23ms on the K80 and1.48ms on the Galaxy A14 for10,000keywords (Table IV, Figure 5)."
+    },
+    {
+      "idx": 117,
+      "cls": "HUMAN",
+      "comb": 0.045,
+      "ahmed": 0.009,
+      "fakespot": 0.047,
+      "openai": 0.161,
+      "text": "Searching without an index took over 18 seconds on our cheapest phone."
+    },
+    {
+      "idx": 118,
+      "cls": "HUMAN",
+      "comb": 0.199,
+      "ahmed": 0.206,
+      "fakespot": 0.113,
+      "openai": 0.376,
+      "text": "Figure 5 shows our fast search speeds across all four devices."
+    },
+    {
+      "idx": 119,
+      "cls": "HUMAN",
+      "comb": 0.2,
+      "ahmed": 0.206,
+      "fakespot": 0.046,
+      "openai": 0.543,
+      "text": "Cold lookups added under0.12ms of extra delay across all four phones."
+    },
+    {
+      "idx": 120,
+      "cls": "DIRECT",
+      "comb": 0.676,
+      "ahmed": 0.972,
+      "fakespot": 0.373,
+      "openai": 0.398,
+      "text": "TABLE IV MULTI-DEVICESEARCHQUERYLATENCY(N= 10,000KEYWORDS)."
+    },
+    {
+      "idx": 121,
+      "cls": "POLISHED",
+      "comb": 0.504,
+      "ahmed": 0.934,
+      "fakespot": 0.012,
+      "openai": 0.22,
+      "text": "File encryption throughput and RAM key persistence."
+    },
+    {
+      "idx": 122,
+      "cls": "POLISHED",
+      "comb": 0.587,
+      "ahmed": 0.967,
+      "fakespot": 0.013,
+      "openai": 0.656,
+      "text": "Search latency across tested smartphone tiers."
+    },
+    {
+      "idx": 123,
+      "cls": "POLISHED",
+      "comb": 0.376,
+      "ahmed": 0.69,
+      "fakespot": 0.003,
+      "openai": 0.202,
+      "text": "Dynamic Updates and Bloom Filter Scalability Our in-memory filter checked over 22,000 tags per millisecond on the K80."
+    },
+    {
+      "idx": 124,
+      "cls": "HUMAN",
+      "comb": 0.074,
+      "ahmed": 0.034,
+      "fakespot": 0.015,
+      "openai": 0.349,
+      "text": "Adding fresh deletions took barely0.08ms per term."
+    },
+    {
+      "idx": 125,
+      "cls": "POLISHED",
+      "comb": 0.369,
+      "ahmed": 0.696,
+      "fakespot": 0.021,
+      "openai": 0.086,
+      "text": "Even with50,000discarded tags, the table sits at117KB in RAM."
+    },
+    {
+      "idx": 126,
+      "cls": "HUMAN",
+      "comb": 0.045,
+      "ahmed": 0.006,
+      "fakespot": 0.027,
+      "openai": 0.215,
+      "text": "Android never kills our background worker because this tiny footprint stays way below operating system memory limits."
+    },
+    {
+      "idx": 127,
+      "cls": "HUMAN",
+      "comb": 0.072,
+      "ahmed": 0.11,
+      "fakespot": 0.008,
+      "openai": 0.097,
+      "text": "Our local deletion filter handles tens of thousands of changes cleanly."
+    },
+    {
+      "idx": 128,
+      "cls": "HUMAN",
+      "comb": 0.067,
+      "ahmed": 0.068,
+      "fakespot": 0.005,
+      "openai": 0.208,
+      "text": "Our Bloom filter catches deleted files in under a millisecond."
+    },
+    {
+      "idx": 129,
+      "cls": "POLISHED",
+      "comb": 0.314,
+      "ahmed": 0.616,
+      "fakespot": 0.002,
+      "openai": 0.037,
+      "text": "Network Query Decorrelation and Traffic Smoothing We monitored network packets to make sure query delays hide bursty traffic."
+    },
+    {
+      "idx": 130,
+      "cls": "HUMAN",
+      "comb": 0.033,
+      "ahmed": 0.061,
+      "fakespot": 0.002,
+      "openai": 0.013,
+      "text": "Pausing 10 to 50 milliseconds between lookups smooths out bursty traffic."
+    },
+    {
+      "idx": 131,
+      "cls": "HUMAN",
+      "comb": 0.088,
+      "ahmed": 0.052,
+      "fakespot": 0.08,
+      "openai": 0.224,
+      "text": "Mobile users barely notice these tiny pauses during daily searches."
+    },
+    {
+      "idx": 132,
+      "cls": "HUMAN",
+      "comb": 0.037,
+      "ahmed": 0.044,
+      "fakespot": 0.011,
+      "openai": 0.077,
+      "text": "Our background worker smooths out query traffic automatically."
+    },
+    {
+      "idx": 133,
+      "cls": "HUMAN",
+      "comb": 0.216,
+      "ahmed": 0.252,
+      "fakespot": 0.213,
+      "openai": 0.104,
+      "text": "These tiny pauses keep eavesdroppers from tracking user habits."
+    },
+    {
+      "idx": 134,
+      "cls": "HUMAN",
+      "comb": 0.115,
+      "ahmed": 0.13,
+      "fakespot": 0.007,
+      "openai": 0.32,
+      "text": "Our random delay buffer spreads out bursty lookup traffic across time."
+    },
+    {
+      "idx": 135,
+      "cls": "POLISHED",
+      "comb": 0.511,
+      "ahmed": 0.928,
+      "fakespot": 0.005,
+      "openai": 0.3,
+      "text": "Storage Inflation and Energy Consumption Table V shows our test numbers."
+    },
+    {
+      "idx": 136,
+      "cls": "HUMAN",
+      "comb": 0.247,
+      "ahmed": 0.345,
+      "fakespot": 0.142,
+      "openai": 0.163,
+      "text": "Padding 10,000 terms to powers of two made the index grow from 1.48 MB to 2.21 MB."
+    },
+    {
+      "idx": 137,
+      "cls": "HUMAN",
+      "comb": 0.092,
+      "ahmed": 0.015,
+      "fakespot": 0.006,
+      "openai": 0.547,
+      "text": "This index easily fits on the phone."
+    },
+    {
+      "idx": 138,
+      "cls": "HUMAN",
+      "comb": 0.013,
+      "ahmed": 0.007,
+      "fakespot": 0.005,
+      "openai": 0.051,
+      "text": "Running 1,000 searches on our budget phone used just1.85mJ of battery energy."
+    },
+    {
+      "idx": 139,
+      "cls": "HUMAN",
+      "comb": 0.048,
+      "ahmed": 0.005,
+      "fakespot": 0.037,
+      "openai": 0.219,
+      "text": "A typical phone battery hardly registers this draw even after weeks of constant searching."
+    },
+    {
+      "idx": 140,
+      "cls": "HUMAN",
+      "comb": 0.177,
+      "ahmed": 0.116,
+      "fakespot": 0.01,
+      "openai": 0.769,
+      "text": "Power-of-two padding hides search volumes with modest storage overhead."
+    },
+    {
+      "idx": 141,
+      "cls": "HUMAN",
+      "comb": 0.055,
+      "ahmed": 0.072,
+      "fakespot": 0.015,
+      "openai": 0.093,
+      "text": "Our padding scheme stops cloud servers from counting matching files."
+    },
+    {
+      "idx": 142,
+      "cls": "POLISHED",
+      "comb": 0.55,
+      "ahmed": 0.987,
+      "fakespot": 0.005,
+      "openai": 0.369,
+      "text": "Cold-Cache Latency and Multi-Query Concurrency Repeated lookups pull directly from warm RAM caches."
+    },
+    {
+      "idx": 143,
+      "cls": "HUMAN",
+      "comb": 0.136,
+      "ahmed": 0.167,
+      "fakespot": 0.035,
+      "openai": 0.272,
+      "text": "We flushed phone memory caches before each test to measure worst-case cold lookups."
+    },
+    {
+      "idx": 144,
+      "cls": "HUMAN",
+      "comb": 0.229,
+      "ahmed": 0.338,
+      "fakespot": 0.029,
+      "openai": 0.335,
+      "text": "Cold searches added under 0.12 milliseconds of delay across our four test phones."
+    },
+    {
+      "idx": 145,
+      "cls": "POLISHED",
+      "comb": 0.537,
+      "ahmed": 0.955,
+      "fakespot": 0.005,
+      "openai": 0.385,
+      "text": "Reading encrypted blocks from flash storage never created a bottleneck TABLE V INDEXSTORAGEINFLATION ANDMOBILEENERGYOVERHEAD."
+    },
+    {
+      "idx": 146,
+      "cls": "HUMAN",
+      "comb": 0.211,
+      "ahmed": 0.399,
+      "fakespot": 0.008,
+      "openai": 0.061,
+      "text": "Firing 100 rapid queries back-to-back showed completely flat memory usage."
+    },
+    {
+      "idx": 147,
+      "cls": "HUMAN",
+      "comb": 0.096,
+      "ahmed": 0.047,
+      "fakespot": 0.038,
+      "openai": 0.394,
+      "text": "Our background worker handles rapid queries without causing UI stutter."
+    },
+    {
+      "idx": 148,
+      "cls": "HUMAN",
+      "comb": 0.096,
+      "ahmed": 0.067,
+      "fakespot": 0.017,
+      "openai": 0.374,
+      "text": "Looking up keywords adds barely a fraction of a millisecond."
+    },
+    {
+      "idx": 149,
+      "cls": "HUMAN",
+      "comb": 0.164,
+      "ahmed": 0.213,
+      "fakespot": 0.01,
+      "openai": 0.36,
+      "text": "Memory Safety and Garbage Collection Isolation We tested Android memory churn during heavy continuous search workloads."
+    },
+    {
+      "idx": 150,
+      "cls": "HUMAN",
+      "comb": 0.244,
+      "ahmed": 0.359,
+      "fakespot": 0.006,
+      "openai": 0.418,
+      "text": "Active buffer wiping zeroes out cryptographic material immediately."
+    },
+    {
+      "idx": 151,
+      "cls": "HUMAN",
+      "comb": 0.048,
+      "ahmed": 0.003,
+      "fakespot": 0.035,
+      "openai": 0.228,
+      "text": "Android garbage collection never paused our background isolate worker during tests."
+    },
+    {
+      "idx": 152,
+      "cls": "HUMAN",
+      "comb": 0.204,
+      "ahmed": 0.277,
+      "fakespot": 0.017,
+      "openai": 0.4,
+      "text": "Our Dart isolate runs encryption without blocking the user interface."
+    },
+    {
+      "idx": 153,
+      "cls": "HUMAN",
+      "comb": 0.168,
+      "ahmed": 0.228,
+      "fakespot": 0.006,
+      "openai": 0.348,
+      "text": "Zeroing memory buffers stops leftover keys from sitting in RAM."
+    },
+    {
+      "idx": 154,
+      "cls": "HUMAN",
+      "comb": 0.105,
+      "ahmed": 0.045,
+      "fakespot": 0.005,
+      "openai": 0.54,
+      "text": "We clean up sensitive buffers right inside our background worker."
+    },
+    {
+      "idx": 155,
+      "cls": "HUMAN",
+      "comb": 0.168,
+      "ahmed": 0.289,
+      "fakespot": 0.001,
+      "openai": 0.152,
+      "text": "Energy Overhead Across Mobile Tiers Encrypted lookups consume barely any battery power."
+    },
+    {
+      "idx": 156,
+      "cls": "HUMAN",
+      "comb": 0.056,
+      "ahmed": 0.043,
+      "fakespot": 0.051,
+      "openai": 0.115,
+      "text": "Running 1,000 continuous searches on the Galaxy A14 drew only1.85mJ of energy."
+    },
+    {
+      "idx": 157,
+      "cls": "HUMAN",
+      "comb": 0.1,
+      "ahmed": 0.02,
+      "fakespot": 0.007,
+      "openai": 0.582,
+      "text": "Background index checks never drain phone battery."
+    },
+    {
+      "idx": 158,
+      "cls": "HUMAN",
+      "comb": 0.128,
+      "ahmed": 0.007,
+      "fakespot": 0.018,
+      "openai": 0.784,
+      "text": "Our prototype keeps files safe without burning phone battery."
+    },
+    {
+      "idx": 159,
+      "cls": "HUMAN",
+      "comb": 0.176,
+      "ahmed": 0.26,
+      "fakespot": 0.006,
+      "openai": 0.294,
+      "text": "The phone loads matching index buckets into RAM on demand."
+    },
+    {
+      "idx": 160,
+      "cls": "POLISHED",
+      "comb": 0.533,
+      "ahmed": 0.93,
+      "fakespot": 0.003,
+      "openai": 0.447,
+      "text": "Cloud Interoperability and Storage Backends We designed our scheme to work with ordinary cloud buckets."
+    },
+    {
+      "idx": 161,
+      "cls": "HUMAN",
+      "comb": 0.071,
+      "ahmed": 0.014,
+      "fakespot": 0.014,
+      "openai": 0.392,
+      "text": "All encryption and padding happen locally on the handset before uploading."
+    },
+    {
+      "idx": 162,
+      "cls": "HUMAN",
+      "comb": 0.127,
+      "ahmed": 0.145,
+      "fakespot": 0.056,
+      "openai": 0.237,
+      "text": "The cloud never sees plaintext filenames or raw search keywords."
+    },
+    {
+      "idx": 163,
+      "cls": "HUMAN",
+      "comb": 0.114,
+      "ahmed": 0.017,
+      "fakespot": 0.018,
+      "openai": 0.664,
+      "text": "Our setup needs no custom code on the remote server."
+    },
+    {
+      "idx": 164,
+      "cls": "HUMAN",
+      "comb": 0.188,
+      "ahmed": 0.194,
+      "fakespot": 0.105,
+      "openai": 0.36,
+      "text": "The server sees only random byte strings and fixed lookup tables."
+    },
+    {
+      "idx": 165,
+      "cls": "HUMAN",
+      "comb": 0.003,
+      "ahmed": 0.004,
+      "fakespot": 0.002,
+      "openai": 0.003,
+      "text": "Key Hygiene and Hardware Anchoring We keep the master root key inside ARM TrustZone hardware."
+    },
+    {
+      "idx": 166,
+      "cls": "HUMAN",
+      "comb": 0.039,
+      "ahmed": 0.01,
+      "fakespot": 0.006,
+      "openai": 0.214,
+      "text": "We lock master keys inside hardware keystores on the phone."
+    },
+    {
+      "idx": 167,
+      "cls": "HUMAN",
+      "comb": 0.103,
+      "ahmed": 0.008,
+      "fakespot": 0.023,
+      "openai": 0.609,
+      "text": "Fingerprint scans guard the master key vault on the handset."
+    },
+    {
+      "idx": 168,
+      "cls": "HUMAN",
+      "comb": 0.073,
+      "ahmed": 0.036,
+      "fakespot": 0.03,
+      "openai": 0.294,
+      "text": "The phone never writes unencrypted master keys to flash storage."
+    },
+    {
+      "idx": 169,
+      "cls": "HUMAN",
+      "comb": 0.041,
+      "ahmed": 0.006,
+      "fakespot": 0.023,
+      "openai": 0.198,
+      "text": "The phone wipes encryption keys right after finishing each task."
+    },
+    {
+      "idx": 170,
+      "cls": "HUMAN",
+      "comb": 0.06,
+      "ahmed": 0.009,
+      "fakespot": 0.015,
+      "openai": 0.337,
+      "text": "Android cannot leak discarded keys because we zero out memory buffers immediately."
+    },
+    {
+      "idx": 171,
+      "cls": "DIRECT",
+      "comb": 0.617,
+      "ahmed": 0.993,
+      "fakespot": 0.003,
+      "openai": 0.798,
+      "text": "Bandwidth and Traffic Obfuscation Power-of-two padding hides search volumes with modest storage overhead."
+    },
+    {
+      "idx": 172,
+      "cls": "HUMAN",
+      "comb": 0.055,
+      "ahmed": 0.072,
+      "fakespot": 0.015,
+      "openai": 0.093,
+      "text": "Our padding scheme stops cloud servers from counting matching files."
+    },
+    {
+      "idx": 173,
+      "cls": "HUMAN",
+      "comb": 0.038,
+      "ahmed": 0.044,
+      "fakespot": 0.027,
+      "openai": 0.042,
+      "text": "We group search results into powers of two so lists look identical."
+    },
+    {
+      "idx": 174,
+      "cls": "HUMAN",
+      "comb": 0.039,
+      "ahmed": 0.003,
+      "fakespot": 0.01,
+      "openai": 0.228,
+      "text": "Padding results to powers of two hides search volume completely."
+    },
+    {
+      "idx": 175,
+      "cls": "HUMAN",
+      "comb": 0.275,
+      "ahmed": 0.466,
+      "fakespot": 0.003,
+      "openai": 0.275,
+      "text": "Multi-Device Synchronization and Group Keying Our prototype keeps files safe without burning phone battery."
+    },
+    {
+      "idx": 176,
+      "cls": "POLISHED",
+      "comb": 0.56,
+      "ahmed": 0.928,
+      "fakespot": 0.091,
+      "openai": 0.426,
+      "text": "Our current prototype focuses on personal smartphone backups."
+    },
+    {
+      "idx": 177,
+      "cls": "POLISHED",
+      "comb": 0.537,
+      "ahmed": 0.97,
+      "fakespot": 0.048,
+      "openai": 0.234,
+      "text": "Supporting multiple devices across shared folders will use threshold keys in our next release."
+    },
+    {
+      "idx": 178,
+      "cls": "HUMAN",
+      "comb": 0.106,
+      "ahmed": 0.099,
+      "fakespot": 0.068,
+      "openai": 0.219,
+      "text": "We plan to bring encrypted search to shared family folders next."
+    },
+    {
+      "idx": 179,
+      "cls": "HUMAN",
+      "comb": 0.125,
+      "ahmed": 0.119,
+      "fakespot": 0.036,
+      "openai": 0.356,
+      "text": "We want to test our scheme across more Android phone brands."
+    },
+    {
+      "idx": 180,
+      "cls": "HUMAN",
+      "comb": 0.149,
+      "ahmed": 0.056,
+      "fakespot": 0.009,
+      "openai": 0.785,
+      "text": "We keep encryption keys safe inside ARM TrustZone behind biometric security."
+    },
+    {
+      "idx": 181,
+      "cls": "HUMAN",
+      "comb": 0.027,
+      "ahmed": 0.024,
+      "fakespot": 0.013,
+      "openai": 0.068,
+      "text": "We keep the master root key inside ARM TrustZone hardware."
+    },
+    {
+      "idx": 182,
+      "cls": "HUMAN",
+      "comb": 0.039,
+      "ahmed": 0.01,
+      "fakespot": 0.006,
+      "openai": 0.214,
+      "text": "We lock master keys inside hardware keystores on the phone."
+    },
+    {
+      "idx": 183,
+      "cls": "HUMAN",
+      "comb": 0.103,
+      "ahmed": 0.008,
+      "fakespot": 0.023,
+      "openai": 0.609,
+      "text": "Fingerprint scans guard the master key vault on the handset."
+    },
+    {
+      "idx": 184,
+      "cls": "HUMAN",
+      "comb": 0.073,
+      "ahmed": 0.036,
+      "fakespot": 0.03,
+      "openai": 0.294,
+      "text": "The phone never writes unencrypted master keys to flash storage."
+    },
+    {
+      "idx": 185,
+      "cls": "HUMAN",
+      "comb": 0.041,
+      "ahmed": 0.006,
+      "fakespot": 0.023,
+      "openai": 0.198,
+      "text": "The phone wipes encryption keys right after finishing each task."
+    },
+    {
+      "idx": 186,
+      "cls": "POLISHED",
+      "comb": 0.325,
+      "ahmed": 0.618,
+      "fakespot": 0.003,
+      "openai": 0.103,
+      "text": "Complex Queries and Verifiable Search Our local deletion filter handles tens of thousands of changes cleanly."
+    },
+    {
+      "idx": 187,
+      "cls": "HUMAN",
+      "comb": 0.067,
+      "ahmed": 0.068,
+      "fakespot": 0.005,
+      "openai": 0.208,
+      "text": "Our Bloom filter catches deleted files in under a millisecond."
+    },
+    {
+      "idx": 188,
+      "cls": "DIRECT",
+      "comb": 0.74,
+      "ahmed": 0.997,
+      "fakespot": 0.557,
+      "openai": 0.313,
+      "text": "We also plan to explore encrypted range queries for date filters."
+    },
+    {
+      "idx": 189,
+      "cls": "HUMAN",
+      "comb": 0.084,
+      "ahmed": 0.061,
+      "fakespot": 0.06,
+      "openai": 0.219,
+      "text": "The phone keeps key storage locked behind hardware enclaves across all operations."
+    },
+    {
+      "idx": 190,
+      "cls": "HUMAN",
+      "comb": 0.161,
+      "ahmed": 0.031,
+      "fakespot": 0.016,
+      "openai": 0.933,
+      "text": "Our design handles large collections without slowing down lookups."
+    },
+    {
+      "idx": 191,
+      "cls": "HUMAN",
+      "comb": 0.167,
+      "ahmed": 0.008,
+      "fakespot": 0.21,
+      "openai": 0.594,
+      "text": "The background worker operates quietly without draining handset battery."
+    },
+    {
+      "idx": 192,
+      "cls": "HUMAN",
+      "comb": 0.105,
+      "ahmed": 0.045,
+      "fakespot": 0.005,
+      "openai": 0.54,
+      "text": "We clean up sensitive buffers right inside our background worker."
+    },
+    {
+      "idx": 193,
+      "cls": "HUMAN",
+      "comb": 0.168,
+      "ahmed": 0.228,
+      "fakespot": 0.006,
+      "openai": 0.348,
+      "text": "Zeroing memory buffers stops leftover keys from sitting in RAM."
+    },
+    {
+      "idx": 194,
+      "cls": "HUMAN",
+      "comb": 0.06,
+      "ahmed": 0.009,
+      "fakespot": 0.015,
+      "openai": 0.337,
+      "text": "Android cannot leak discarded keys because we zero out memory buffers immediately."
+    },
+    {
+      "idx": 195,
+      "cls": "HUMAN",
+      "comb": 0.204,
+      "ahmed": 0.277,
+      "fakespot": 0.017,
+      "openai": 0.4,
+      "text": "Our Dart isolate runs encryption without blocking the user interface."
+    },
+    {
+      "idx": 196,
+      "cls": "HUMAN",
+      "comb": 0.023,
+      "ahmed": 0.006,
+      "fakespot": 0.011,
+      "openai": 0.11,
+      "text": "CONCLUSION Our phone experiments show sub-millisecond lookups with barely any battery draw."
+    },
+    {
+      "idx": 197,
+      "cls": "HUMAN",
+      "comb": 0.096,
+      "ahmed": 0.067,
+      "fakespot": 0.017,
+      "openai": 0.374,
+      "text": "Looking up keywords adds barely a fraction of a millisecond."
+    },
+    {
+      "idx": 198,
+      "cls": "HUMAN",
+      "comb": 0.229,
+      "ahmed": 0.338,
+      "fakespot": 0.029,
+      "openai": 0.335,
+      "text": "Cold searches added under 0.12 milliseconds of delay across our four test phones."
+    },
+    {
+      "idx": 199,
+      "cls": "HUMAN",
+      "comb": 0.073,
+      "ahmed": 0.041,
+      "fakespot": 0.005,
+      "openai": 0.336,
+      "text": "Reading encrypted blocks from flash storage never created a bottleneck for our lookups."
+    },
+    {
+      "idx": 200,
+      "cls": "HUMAN",
+      "comb": 0.123,
+      "ahmed": 0.048,
+      "fakespot": 0.128,
+      "openai": 0.364,
+      "text": "We tested four real Android phones to confirm our benchmarks."
+    },
+    {
+      "idx": 201,
+      "cls": "HUMAN",
+      "comb": 0.025,
+      "ahmed": 0.011,
+      "fakespot": 0.016,
+      "openai": 0.09,
+      "text": "Our background worker wipes secret keys from RAM after every cipher call."
+    },
+    {
+      "idx": 202,
+      "cls": "HUMAN",
+      "comb": 0.05,
+      "ahmed": 0.005,
+      "fakespot": 0.011,
+      "openai": 0.292,
+      "text": "Padding results to powers of two stops cloud admins from guessing searches."
+    },
+    {
+      "idx": 203,
+      "cls": "HUMAN",
+      "comb": 0.042,
+      "ahmed": 0.014,
+      "fakespot": 0.017,
+      "openai": 0.193,
+      "text": "The phone wipes memory buffers cleanly after every search."
+    },
+    {
+      "idx": 204,
+      "cls": "POLISHED",
+      "comb": 0.526,
+      "ahmed": 0.986,
+      "fakespot": 0.052,
+      "openai": 0.095,
+      "text": "Zeroing memory buffers immediately after cipher calls prevents sidechannel leakage."
+    },
+    {
+      "idx": 205,
+      "cls": "HUMAN",
+      "comb": 0.078,
+      "ahmed": 0.027,
+      "fakespot": 0.035,
+      "openai": 0.346,
+      "text": "Our security proof confirms that search tokens leak nothing to attackers."
+    },
+    {
+      "idx": 206,
+      "cls": "HUMAN",
+      "comb": 0.187,
+      "ahmed": 0.196,
+      "fakespot": 0.029,
+      "openai": 0.525,
+      "text": "Our app makes cloud backups secure without slowing down daily searches."
+    },
+    {
+      "idx": 207,
+      "cls": "HUMAN",
+      "comb": 0.175,
+      "ahmed": 0.247,
+      "fakespot": 0.061,
+      "openai": 0.199,
+      "text": "Our phone tests show that encrypted search is ready for daily mobile use."
+    }
+  ]
+}

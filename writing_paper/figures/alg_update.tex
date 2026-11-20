@@ -1,0 +1,22 @@
+\documentclass[preview,varwidth=88mm]{standalone}
+\usepackage{amsmath,amsfonts,amssymb,algorithmicx,algpseudocode}
+\begin{document}
+\noindent\textbf{Algorithm 3: VisioCrypt Dynamic Incremental Update}
+\vspace{1mm}\hrule\vspace{1mm}
+\begin{algorithmic}[1]
+\Require Operation $op \in \{\text{ADD}, \text{DEL}\}$, document $D_j$, client key $K$
+\State $(K_{\text{enc}}, K_{\text{search}}, K_{\text{index}}, K_{\text{update}}) \leftarrow \text{HKDF-Expand}(K)$
+\State $\mathbf{W}_j \leftarrow \text{ExtractKeywords}(D_j)$
+\For{each keyword $w \in \mathbf{W}_j$}
+    \If{$op = \text{DEL}$}
+        \State $\mathbf{BF}\text{.Insert}(w \parallel docId(D_j))$ \Comment{Local Bloom filter}
+    \Else
+        \State $(v_w, c_w) \leftarrow \mathbf{\Sigma}[w]$; $v_w' \leftarrow v_w + 1$; $\mathbf{\Sigma}[w] \leftarrow (v_w', c_w + 1)$
+        \State $T_w' \leftarrow \text{HMAC}(K_{\text{search}}, w \parallel v_w')$
+        \State Encrypt and send updated candidate bucket $\mathbf{I}[T_w']$
+    \EndIf
+\EndFor
+\State \textbf{ZeroizeMemory}($\{K_{\text{enc}}, K_{\text{search}}, K_{\text{index}}, K_{\text{update}}\}$)
+\end{algorithmic}
+\vspace{1mm}\hrule
+\end{document}

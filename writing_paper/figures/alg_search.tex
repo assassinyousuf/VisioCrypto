@@ -1,0 +1,27 @@
+\documentclass[preview,varwidth=88mm]{standalone}
+\usepackage{amsmath,amsfonts,amssymb,algorithmicx,algpseudocode}
+\begin{document}
+\noindent\textbf{Algorithm 2: VisioCrypt Volume-Hiding Search Protocol}
+\vspace{1mm}\hrule\vspace{1mm}
+\begin{algorithmic}[1]
+\Require Keyword $w$, state table $\mathbf{\Sigma}$, client master key $K$
+\Ensure Decrypted matching document IDs $R_w$
+\State \textbf{Client Phase (Dart Background Isolate):}
+\State $(v_w, c_w) \leftarrow \mathbf{\Sigma}[w]$; $T_w \leftarrow \text{HMAC}(K_{\text{search}}, w \parallel v_w)$
+\State \textbf{InjectQueryDelay}() \Comment{Smooth network burstiness}
+\State Send $T_w$ to Cloud Storage Server
+\State \textbf{Server Phase (Untrusted Cloud):}
+\State $(iv \parallel E_w) \leftarrow \mathbf{I}[T_w]$; Send $(iv \parallel E_w)$ to Client
+\State \textbf{Client Result Resolution Phase:}
+\State $L_w^* \leftarrow \text{AES-GCM-Dec}(K_{\text{index}}, iv, E_w)$
+\State $R_w \leftarrow \emptyset$
+\For{each identifier $id \in L_w^*$}
+    \If{$id \ne \text{DUMMY} \land \mathbf{BF}\text{.Contains}(w \parallel id) = \text{False}$}
+        \State $R_w \leftarrow R_w \cup \{id\}$
+    \EndIf
+\EndFor
+\State \textbf{ZeroizeMemory}($\{K_{\text{search}}, K_{\text{index}}, L_w^*\})$
+\State \Return $R_w$
+\end{algorithmic}
+\vspace{1mm}\hrule
+\end{document}

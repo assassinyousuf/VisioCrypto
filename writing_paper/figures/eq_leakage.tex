@@ -1,0 +1,9 @@
+\documentclass[preview,varwidth=88mm]{standalone}
+\usepackage{amsmath,amsfonts,amssymb}
+\begin{document}
+\begin{align*}
+\mathcal{L}_{\text{setup}}(\mathbf{D}) &= \left( n, \{|C_i|\}_{i=1}^n, \{\text{Pad}(|L_w|)\}_{w \in \mathbf{W}} \right) \\
+\mathcal{L}_{\text{search}}(w) &= \left( \text{sp}(w), \text{Pad}(|L_w|) \right) \\
+\mathcal{L}_{\text{update}}(op, D_j) &= \left( op, |D_j|, |\mathbf{W}_j| \right)
+\end{align*}
+\end{document}

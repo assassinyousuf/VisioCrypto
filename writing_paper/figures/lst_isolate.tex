@@ -1,0 +1,47 @@
+\documentclass[preview,varwidth=90mm]{standalone}
+\usepackage{listings,xcolor}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+\begin{document}
+\begin{lstlisting}[language=Java]
+static void _isolateEntryPoint(IsolateMsg msg) async {
+  final keys = SseEngine.deriveKeys(msg.key, msg.salt);
+  final kSearch = keys['kSearch']!, kVal = keys['kVal']!;
+  final words = await SseEngine.extractWords(File(msg.path));
+  final Map<String, Uint8List> indexDb = {};
+  for (final w in words) {
+    final t_w = SseEngine.computeTrapdoor(w, kSearch);
+    final padded = SseEngine.padList([msg.docId]);
+    final iv = Uint8List(12);
+    final c_w = SseEngine.encryptGcm(kVal, iv, padded);
+    indexDb[t_w] = Uint8List.fromList([...iv, ...c_w]);
+  }
+  // Active byte array zeroization (RAM wipe)
+  kSearch.fillRange(0, kSearch.length, 0);
+  kVal.fillRange(0, kVal.length, 0);
+  msg.key.fillRange(0, msg.key.length, 0);
+  msg.port.send({'status': 'done', 'index': indexDb});
+}
+\end{lstlisting}
+\end{document}

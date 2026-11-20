@@ -1,0 +1,109 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{bernstein2008}
+Bernstein, D.J.: {ChaCha}, a variant of {Salsa20}. In: Workshop Record of SASC.
+  vol.~8, pp.~3--5 (2008)
+
+\bibitem{biryukov2016}
+Biryukov, A., Dinu, D., Khovratovich, D.: {Argon2}: New generation of
+  memory-hard functions for password hashing and other applications. In: 2016
+  IEEE European Symposium on Security and Privacy (EuroS\&P). pp. 292--302.
+  IEEE (2016). \doi{10.1109/EuroSP.2016.31}
+
+\bibitem{carlini2021}
+Carlini, N., Tramer, F., Wallace, E., Jagielski, M., Herbert-Voss, A., Lee, K.,
+  Roberts, A., Brown, T., Song, D., Erlingsson, {\'{U}}., et~al.: Extracting
+  training data from large language models. In: 30th USENIX Security Symposium
+  (USENIX Security 21). pp. 2633--2650. USENIX Association (2021)
+
+\bibitem{cash2013}
+Cash, D., Jaeger, J., Jarecki, S., Jutla, C.S., Krawczyk, H., Killijian, M.O.,
+  et~al.: Highly-scalable searchable symmetric encryption with support for
+  boolean queries. In: Advances in Cryptology --- CRYPTO 2013. pp. 353--373.
+  Springer (2013). \doi{10.1007/978-3-642-40084-1_20}
+
+\bibitem{curtmola2006}
+Curtmola, R., Garay, J.A., Kamara, S., Ostrovsky, R.: Searchable symmetric
+  encryption: improved definitions and efficient constructions. In: Proceedings
+  of the 13th ACM Conference on Computer and Communications Security (CCS). pp.
+  79--88. ACM (2006). \doi{10.1145/1180405.1180417}
+
+\bibitem{rustee2020}
+Ding, A., Lu, H., Yang, M., Sun, K.: {RusTEE}: Developing memory-safe {ARM}
+  {TrustZone} applications. In: Proceedings of the 36th Annual Computer
+  Security Applications Conference (ACSAC). pp. 441--453. ACM (2020).
+  \doi{10.1145/3427228.3427236}
+
+\bibitem{grover1996}
+Grover, L.K.: A fast quantum mechanical algorithm for database search. In:
+  Proceedings of the Twenty-Eighth Annual ACM Symposium on Theory of Computing
+  (STOC). pp. 212--219. ACM (1996). \doi{10.1145/237814.237866}
+
+\bibitem{hossain2026visiolock}
+Hossain, M.Y., Sajeeb, S.S.H., Ausaf, S.M.N., Rahman, M.M., Saharaz, N.H.,
+  Based, M.A.: {VisioLock}: Cross-media secure image transmission via
+  audio-domain encoding and device-bound cryptography. In: Taylor \& Francis
+  Book Chapter. Taylor \& Francis (2026)
+
+\bibitem{swat2024}
+Ihsan, M., Jamil, T., Raza, A.: {SWAT}: A system-wide approach to tunable
+  leakage mitigation in encrypted data stores. arXiv preprint arXiv:2402.18921
+  (2024)
+
+\bibitem{kamara2012}
+Kamara, S., Papamanthou, C., Roeder, T.: Dynamic searchable symmetric
+  encryption. In: Proceedings of the 2012 ACM Conference on Computer and
+  Communications Security (CCS). pp. 965--976. ACM (2012).
+  \doi{10.1145/2382196.2382298}
+
+\bibitem{kellaris2016}
+Kellaris, G., Kollios, G., Nissim, K., O'Neill, A.: Generic attacks on secure
+  outsource databases for range queries. In: Proceedings of the 2016 ACM SIGSAC
+  Conference on Computer and Communications Security (CCS). pp. 1329--1340. ACM
+  (2016). \doi{10.1145/2976749.2978386}
+
+\bibitem{kocher1996}
+Kocher, P.C.: Timing attacks on implementations of {Diffie-Hellman}, {RSA},
+  {DSS}, and other systems. In: Advances in Cryptology --- CRYPTO '96. Lecture
+  Notes in Computer Science, vol.~1109, pp. 104--113. Springer (1996).
+  \doi{10.1007/3-540-68697-5_9}
+
+\bibitem{mironov2002}
+Mironov, I.: (not so) random shuffles of {RC4}. In: Advances in Cryptology ---
+  CRYPTO 2002. Lecture Notes in Computer Science, vol.~2442, pp. 304--323.
+  Springer (2002). \doi{10.1007/3-540-45708-9_20}
+
+\bibitem{pets2023_dynamic_vh}
+Patel, S., Persiano, G., Yeo, K.: Dynamic volume-hiding encrypted multi-maps
+  with applications to searchable encryption. Proceedings on Privacy Enhancing
+  Technologies (PoPETs)  \textbf{2023}(1),  352--371 (2023).
+  \doi{10.56553/popets-2023-0025}
+
+\bibitem{pinto2019}
+Pinto, S., Santos, N.: Demystifying {ARM} {TrustZone}: A comprehensive survey.
+  ACM Computing Surveys  \textbf{51}(6),  1--36 (2019). \doi{10.1145/3291047}
+
+\bibitem{rueppel1986}
+Rueppel, R.A.: Analysis and Design of Stream Ciphers. Springer (1986).
+  \doi{10.1007/978-3-642-82883-6}
+
+\bibitem{shokri2015}
+Shokri, R., Shmatikov, V.: Privacy-preserving deep learning. In: Proceedings of
+  the 22nd ACM SIGSAC Conference on Computer and Communications Security (CCS).
+  pp. 1310--1321. ACM (2015). \doi{10.1145/2810103.2813687}
+
+\bibitem{song2000}
+Song, D.X., Wagner, D., Perrig, A.: Practical techniques for searches on
+  encrypted data. In: 2000 IEEE Symposium on Security and Privacy (S\&P). pp.
+  44--55. IEEE (2000). \doi{10.1109/SECPRI.2000.848445}
+
+\bibitem{sgxse2_2020}
+Wang, J., Chen, X., Sun, S., Liu, J.K.: Accelerating forward and backward
+  private searchable encryption using trusted execution. In: IEEE Transactions
+  on Information Forensics and Security (TIFS). vol.~16, pp. 1411--1426. IEEE
+  (2021)
+
+\end{thebibliography}

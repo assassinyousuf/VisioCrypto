@@ -1,0 +1,14 @@
+\documentclass[preview,varwidth=90mm]{standalone}
+\usepackage{booktabs,amsmath,amsfonts,amssymb}
+\begin{document}
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Cipher Architecture} & \textbf{Tier 1 (K80)} & \textbf{Tier 2 (Turbo 4)} & \textbf{Tier 3 (Pixel 7a)} & \textbf{Tier 4 (A14)} \\ \midrule
+AES-GCM-256 & $248.60 \pm 5.1$ & $215.40 \pm 4.5$ & $112.60 \pm 3.1$ & $48.20 \pm 1.8$ \\
+\textbf{AES-CTR-256 + HMAC} & $\mathbf{310.50 \pm 3.8}$ & $\mathbf{265.20 \pm 3.4}$ & $\mathbf{142.80 \pm 2.6}$ & $\mathbf{68.40 \pm 1.9}$ \\ \bottomrule
+\end{tabular}
+\end{table}
+\end{document}

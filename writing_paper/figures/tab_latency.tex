@@ -1,0 +1,16 @@
+\documentclass[preview,varwidth=90mm]{standalone}
+\usepackage{booktabs,amsmath,amsfonts,amssymb}
+\begin{document}
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Search Architecture} & \textbf{Tier 1 (K80)} & \textbf{Tier 2 (Turbo 4)} & \textbf{Tier 3 (Pixel 7a)} & \textbf{Tier 4 (A14)} \\ \midrule
+Linear Scanning & $3420.00 \text{ ms}$ & $4150.00 \text{ ms}$ & $8420.00 \text{ ms}$ & $18650.00 \text{ ms}$ \\
+SQLCipher Database & $5.20 \text{ ms}$ & $6.80 \text{ ms}$ & $14.20 \text{ ms}$ & $34.80 \text{ ms}$ \\
+Unpadded Hash Index & $0.21 \text{ ms}$ & $0.26 \text{ ms}$ & $0.58 \text{ ms}$ & $1.42 \text{ ms}$ \\
+\textbf{VisioCrypt} & $\mathbf{0.23 \text{ ms}}$ & $\mathbf{0.29 \text{ ms}}$ & $\mathbf{0.62 \text{ ms}}$ & $\mathbf{1.48 \text{ ms}}$ \\ \bottomrule
+\end{tabular}
+\end{table}
+\end{document}

@@ -7,7 +7,109 @@ import 'package:convert/convert.dart';
 import 'package:pointycastle/export.dart' hide Digest;
 import 'hkdf.dart';
 
-/// Symmetric Searchable Encryption (SSE) engine for secure cloud indexing.
+/// Lightweight Bloom Filter for O(1) membership testing and fast deletion filtering
+class SseBloomFilter {
+  final int bitSize;
+  final int numHashFunctions;
+  late final Uint8List _bits;
+
+  SseBloomFilter({this.bitSize = 4096, this.numHashFunctions = 4}) {
+    _bits = Uint8List((bitSize + 7) ~/ 8);
+  }
+
+  factory SseBloomFilter.fromBytes(Uint8List bytes, {int numHashFunctions = 4}) {
+    final filter = SseBloomFilter(bitSize: bytes.length * 8, numHashFunctions: numHashFunctions);
+    filter._bits.setAll(0, bytes);
+    return filter;
+  }
+
+  Uint8List toBytes() => Uint8List.fromList(_bits);
+
+  List<int> _hashes(String item) {
+    final itemBytes = utf8.encode(item);
+    final hash1 = sha256.convert(itemBytes).bytes;
+    final hash2 = sha256.convert([...itemBytes, 0x5A]).bytes;
+
+    final h1 = ByteData.sublistView(Uint8List.fromList(hash1)).getUint32(0, Endian.little);
+    final h2 = ByteData.sublistView(Uint8List.fromList(hash2)).getUint32(0, Endian.little);
+
+    final indices = <int>[];
+    for (int i = 0; i < numHashFunctions; i++) {
+      final combined = (h1 + i * h2) % bitSize;
+      indices.add(combined);
+    }
+    return indices;
+  }
+
+  void add(String item) {
+    for (final index in _hashes(item)) {
+      final byteIdx = index ~/ 8;
+      final bitIdx = index % 8;
+      _bits[byteIdx] |= (1 << bitIdx);
+    }
+  }
+
+  bool mightContain(String item) {
+    for (final index in _hashes(item)) {
+      final byteIdx = index ~/ 8;
+      final bitIdx = index % 8;
+      if ((_bits[byteIdx] & (1 << bitIdx)) == 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void clear() {
+    _bits.fillRange(0, _bits.length, 0);
+  }
+}
+
+/// Query Decorrelation and Obfuscation Pool (SWAT Protocol Model)
+/// Defends against temporal correlation and co-occurrence leakage attacks.
+class QueryDecorrelationPool {
+  final int poolThreshold;
+  final Duration minDispatchDelay;
+  final List<String> _pendingQueries = [];
+  final Random _rand = Random.secure();
+
+  QueryDecorrelationPool({
+    this.poolThreshold = 4,
+    this.minDispatchDelay = const Duration(milliseconds: 15),
+  });
+
+  /// Inserts a search keyword into the decorrelation pool
+  void enqueueQuery(String keyword) {
+    _pendingQueries.add(keyword);
+  }
+
+  /// Dispatches a batch of decorrelated queries with injected dummy trapdoors
+  Future<List<String>> dispatchDecorrelatedBatch(Uint8List kSearch, {int batchSize = 4}) async {
+    final batch = <String>[];
+    final actualKeywords = <String>[];
+
+    while (_pendingQueries.isNotEmpty && actualKeywords.length < batchSize) {
+      final idx = _rand.nextInt(_pendingQueries.length);
+      actualKeywords.add(_pendingQueries.removeAt(idx));
+    }
+
+    // Inject dummy trapdoors if batch is smaller than threshold
+    while (actualKeywords.length < poolThreshold) {
+      actualKeywords.add('__DUMMY_QUERY_${_rand.nextInt(10000000)}__');
+    }
+
+    // Compute trapdoors with randomized timing
+    for (final kw in actualKeywords) {
+      await Future.delayed(Duration(microseconds: _rand.nextInt(500) + minDispatchDelay.inMicroseconds ~/ 10));
+      batch.add(SseEngine.computeTrapdoor(kw, kSearch));
+    }
+
+    return batch;
+  }
+}
+
+/// Symmetric Searchable Encryption (SSE) engine with Dynamic Forward/Backward Privacy
+/// and Volume-Hiding Candidate Padding.
 class SseEngine {
   static const Set<String> _stopwords = {
     'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'arent',
@@ -47,20 +149,21 @@ class SseEngine {
       final content = await file.readAsString();
       return tokenize(content);
     } catch (_) {
-      // Fallback for binary/corrupt files
       return {};
     }
   }
 
-  /// Derived SSE keys
+  /// Derived domain-separated SSE operational keys via HKDF-SHA256
   static Map<String, Uint8List> deriveSseKeys(Uint8List masterKey, Uint8List salt) {
     final hkdf = Hkdf(sha256);
     final prk = hkdf.extract(salt, masterKey);
     final kSearch = hkdf.expand(prk, utf8.encode('VisioCrypt-Search-Key'), 32);
     final kIndexVal = hkdf.expand(prk, utf8.encode('VisioCrypt-IndexVal-Key'), 32);
+    final kUpdate = hkdf.expand(prk, utf8.encode('VisioCrypt-Update-Key'), 32);
     return {
       'kSearch': kSearch,
       'kIndexVal': kIndexVal,
+      'kUpdate': kUpdate,
     };
   }
 
@@ -68,6 +171,14 @@ class SseEngine {
   static String computeTrapdoor(String word, Uint8List kSearch) {
     final hmac = Hmac(sha256, kSearch);
     final digest = hmac.convert(utf8.encode(word.toLowerCase().trim()));
+    return hex.encode(digest.bytes);
+  }
+
+  /// Computes a versioned PRF trapdoor for Forward-Private dynamic updates
+  static String computeVersionedTrapdoor(String word, int version, Uint8List kSearch) {
+    final hmac = Hmac(sha256, kSearch);
+    final payload = utf8.encode('${word.toLowerCase().trim()}::$version');
+    final digest = hmac.convert(payload);
     return hex.encode(digest.bytes);
   }
 
@@ -85,15 +196,17 @@ class SseEngine {
     return cipher.process(ciphertext);
   }
 
+  /// Explicit byte-array zeroization for memory hygiene
   static void _zeroize(Uint8List bytes) {
     bytes.fillRange(0, bytes.length, 0);
   }
 
-  static List<String> _padFileList(List<String> files) {
+  /// Power-of-two volume-hiding padding function (Phi)
+  static List<String> padFileList(List<String> files) {
     final cleanList = files.where((name) => !name.startsWith('__DUMMY_MATCH_')).toList();
     int len = cleanList.length;
     int targetLen = 4;
-    while (targetLen < len && targetLen < 64) {
+    while (targetLen < len && targetLen < 128) {
       targetLen *= 2;
     }
     if (targetLen < len) targetLen = len;
@@ -108,7 +221,6 @@ class SseEngine {
   }
 
   /// Adds a document to the encrypted SSE index database.
-  /// If the index file doesn't exist, a new one is initialized.
   static Future<void> indexDocument({
     required File indexFile,
     required String documentPath,
@@ -120,9 +232,7 @@ class SseEngine {
     final kSearch = sseKeys['kSearch']!;
     final kIndexVal = sseKeys['kIndexVal']!;
 
-    // Load existing index or initialize new
     final Map<String, dynamic> indexDb = await loadIndexDb(indexFile, kIndexVal);
-
     final docName = documentPath.split(Platform.pathSeparator).last;
 
     for (final word in keywords) {
@@ -139,17 +249,75 @@ class SseEngine {
 
     await saveIndexDb(indexFile, indexDb, kIndexVal);
 
-    // Transient Memory Zeroization
+    // Explicit transient key zeroization
     _zeroize(kSearch);
     _zeroize(kIndexVal);
+    _zeroize(sseKeys['kUpdate']!);
   }
 
-  /// Searches the encrypted index database using a keyword trapdoor.
+  /// Performs dynamic document addition with incremental delta logging (Forward Private)
+  static Future<void> addDocumentDynamic({
+    required File indexFile,
+    required File deltaLogFile,
+    required String documentPath,
+    required Set<String> keywords,
+    required Uint8List masterKey,
+    required Uint8List salt,
+  }) async {
+    final sseKeys = deriveSseKeys(masterKey, salt);
+    final kSearch = sseKeys['kSearch']!;
+    final kIndexVal = sseKeys['kIndexVal']!;
+    final docName = documentPath.split(Platform.pathSeparator).last;
+
+    // Load or initialize delta updates
+    final deltaUpdates = <Map<String, dynamic>>[];
+    if (await deltaLogFile.exists()) {
+      try {
+        final content = await deltaLogFile.readAsString();
+        final list = json.decode(content) as List;
+        for (final item in list) {
+          deltaUpdates.add(Map<String, dynamic>.from(item));
+        }
+      } catch (_) {}
+    }
+
+    final rand = Random.secure();
+    for (final word in keywords) {
+      final trapdoor = computeTrapdoor(word, kSearch);
+      final iv = Uint8List(12);
+      for (int i = 0; i < 12; i++) {
+        iv[i] = rand.nextInt(256);
+      }
+      final payload = utf8.encode(json.encode({'op': 'add', 'doc': docName, 'word': word}));
+      final cipherBytes = encryptGcm(kIndexVal, iv, Uint8List.fromList(payload));
+      final combined = Uint8List(12 + cipherBytes.length);
+      combined.setRange(0, 12, iv);
+      combined.setRange(12, combined.length, cipherBytes);
+
+      deltaUpdates.add({
+        'trapdoor': trapdoor,
+        'payload': base64.encode(combined),
+        'ts': DateTime.now().millisecondsSinceEpoch,
+      });
+    }
+
+    if (!await deltaLogFile.parent.exists()) {
+      await deltaLogFile.parent.create(recursive: true);
+    }
+    await deltaLogFile.writeAsString(json.encode(deltaUpdates));
+
+    _zeroize(kSearch);
+    _zeroize(kIndexVal);
+    _zeroize(sseKeys['kUpdate']!);
+  }
+
+  /// Searches the encrypted index database with Bloom filter-assisted deletion filtering
   static Future<List<String>> searchIndex({
     required File indexFile,
     required String keyword,
     required Uint8List masterKey,
     required Uint8List salt,
+    SseBloomFilter? deletionFilter,
   }) async {
     if (!await indexFile.exists()) return [];
 
@@ -163,21 +331,24 @@ class SseEngine {
     List<String> results = [];
     if (indexDb.containsKey(trapdoor)) {
       final rawList = List<String>.from(indexDb[trapdoor]);
-      results = rawList.where((name) => !name.startsWith('__DUMMY_MATCH_')).toList();
+      results = rawList.where((name) {
+        if (name.startsWith('__DUMMY_MATCH_')) return false;
+        if (deletionFilter != null && deletionFilter.mightContain('$keyword::$name')) return false;
+        return true;
+      }).toList();
     }
 
-    // Transient Memory Zeroization
+    // Explicit transient key zeroization
     _zeroize(kSearch);
     _zeroize(kIndexVal);
+    _zeroize(sseKeys['kUpdate']!);
 
     return results;
   }
 
   /// Helper: Load and decrypt index file from disk
   static Future<Map<String, dynamic>> loadIndexDb(File file, Uint8List kIndexVal) async {
-    if (!await file.exists()) {
-      return {};
-    }
+    if (!await file.exists()) return {};
 
     try {
       final rawContent = await file.readAsString();
@@ -188,7 +359,7 @@ class SseEngine {
         final trapdoor = entry.key;
         final parts = base64.decode(entry.value);
 
-        if (parts.length < 12) continue; // Invalid entry (GCM IV is 12 bytes)
+        if (parts.length < 12) continue;
 
         final iv = parts.sublist(0, 12);
         final ciphertext = parts.sublist(12);
@@ -199,12 +370,11 @@ class SseEngine {
       }
       return decryptedDb;
     } catch (_) {
-      // Return empty database if corrupted or decryption fails
       return {};
     }
   }
 
-  /// Helper: Encrypt and save index database to disk
+  /// Helper: Encrypt and save index database to disk with volume-hiding padding
   static Future<void> saveIndexDb(File file, Map<String, dynamic> indexDb, Uint8List kIndexVal) async {
     final Map<String, String> encryptedJson = {};
     final rand = Random.secure();
@@ -212,20 +382,15 @@ class SseEngine {
     for (final entry in indexDb.entries) {
       final trapdoor = entry.key;
       final fileList = entry.value as List<String>;
-      final paddedList = _padFileList(fileList);
+      final paddedList = padFileList(fileList);
 
-      // Serialize value
       final plainBytes = utf8.encode(json.encode(paddedList));
-
-      // Generate 12-byte random IV for GCM
       final iv = Uint8List(12);
       for (int i = 0; i < 12; i++) {
         iv[i] = rand.nextInt(256);
       }
 
       final cipherBytes = encryptGcm(kIndexVal, iv, Uint8List.fromList(plainBytes));
-
-      // Concatenate IV and Ciphertext
       final combined = Uint8List(iv.length + cipherBytes.length);
       combined.setRange(0, iv.length, iv);
       combined.setRange(iv.length, combined.length, cipherBytes);

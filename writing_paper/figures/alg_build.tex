@@ -1,0 +1,27 @@
+\documentclass[preview,varwidth=88mm]{standalone}
+\usepackage{amsmath,amsfonts,amssymb,algorithmicx,algpseudocode}
+\begin{document}
+\noindent\textbf{Algorithm 1: VisioCrypt Encrypted Index Generation}
+\vspace{1mm}\hrule\vspace{1mm}
+\begin{algorithmic}[1]
+\Require Plaintext collection $\mathbf{D} = \{D_1, \dots, D_n\}$, master key $K$
+\Ensure Encrypted multi-map $\mathbf{I}$, ciphertexts $\mathbf{C}$
+\State $(K_{\text{enc}}, K_{\text{search}}, K_{\text{index}}, K_{\text{update}}) \leftarrow \text{HKDF-Expand}(K)$
+\State $\mathbf{W} \leftarrow \text{ExtractKeywords}(\mathbf{D})$, $\mathbf{I} \leftarrow \text{EmptyMap}()$
+\For{each distinct keyword $w \in \mathbf{W}$}
+    \State $L_w \leftarrow \text{GetMatchingDocs}(\mathbf{D}, w)$, $t \leftarrow |\text{Pad}(L_w)|$
+    \State $L_w^* \leftarrow L_w \parallel \text{Repeat}(\text{DUMMY}, t - |L_w|)$
+    \State $T_w \leftarrow \text{HMAC}(K_{\text{search}}, w \parallel 1)$
+    \State $iv \leftarrow \text{SecureRandom}(12)$
+    \State $E_w \leftarrow \text{AES-GCM-Enc}(K_{\text{index}}, iv, L_w^*)$
+    \State $\mathbf{I}[T_w] \leftarrow (iv \parallel E_w)$
+\EndFor
+\For{each document $D_i \in \mathbf{D}$}
+    \State $C_i \leftarrow \text{AES-CTR-Enc}(K_{\text{enc}}, D_i) \parallel \text{HMAC}(K_{\text{enc}}, C_i)$
+    \State $\mathbf{C} \leftarrow \mathbf{C} \cup \{C_i\}$
+\EndFor
+\State \textbf{ZeroizeMemory}($\{K_{\text{enc}}, K_{\text{search}}, K_{\text{index}}, K_{\text{update}}\}$)
+\State \Return $(\mathbf{I}, \mathbf{C})$
+\end{algorithmic}
+\vspace{1mm}\hrule
+\end{document}

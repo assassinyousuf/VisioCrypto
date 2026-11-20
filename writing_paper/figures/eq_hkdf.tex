@@ -1,0 +1,10 @@
+\documentclass[preview,varwidth=88mm]{standalone}
+\usepackage{amsmath,amsfonts,amssymb}
+\begin{document}
+\begin{align*}
+K_{\text{enc}} &\leftarrow \text{HKDF-Expand}(K, \text{``VisioCrypt-Doc''}, 32) \\
+K_{\text{search}} &\leftarrow \text{HKDF-Expand}(K, \text{``VisioCrypt-Search''}, 32) \\
+K_{\text{index}} &\leftarrow \text{HKDF-Expand}(K, \text{``VisioCrypt-Payload''}, 32) \\
+K_{\text{update}} &\leftarrow \text{HKDF-Expand}(K, \text{``VisioCrypt-Delta''}, 32)
+\end{align*}
+\end{document}

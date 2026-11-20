@@ -1,0 +1,23 @@
+\documentclass[preview,varwidth=180mm]{standalone}
+\usepackage{booktabs,amsmath,amsfonts,amssymb}
+\begin{document}
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Scheme} & \textbf{Year} & \textbf{Search Complexity} & \textbf{Dynamic (Add/Del)} & \textbf{Forward Privacy} & \textbf{Backward Privacy} & \textbf{Volume Hiding} & \textbf{RAM Zeroization} & \textbf{TEE Anchor} \\ \midrule
+Song et al. & 2000 & $\mathcal{O}(N)$ Linear Scan & No & No & No & No & No & No \\
+Curtmola et al. & 2006 & $\mathcal{O}(|L_w|)$ Sub-linear & Static & No & No & No & No & No \\
+Kamara et al. & 2012 & $\mathcal{O}(|L_w|)$ Sub-linear & Yes & No & No & No & No & No \\
+Cash et al. & 2013 & $\mathcal{O}(|L_w|)$ Sub-linear & Static & No & No & No & No & No \\
+Sophos (Bost) & 2016 & $\mathcal{O}(|L_w|)$ Sub-linear & Yes (Add only) & Yes & No & No & No & No \\
+Diana (Bost et al.) & 2017 & $\mathcal{O}(|L_w|)$ Sub-linear & Yes & Yes & Type-II & No & No & No \\
+SEAL (Demertzis et al.) & 2020 & $\mathcal{O}(|L_w|)$ Sub-linear & Yes & Yes & Type-II & Heuristic & No & No \\
+Patel et al. & 2023 & $\mathcal{O}(|L_w|)$ Sub-linear & Yes & Yes & Type-II & Yes (Static/Bin) & No & No \\
+SWAT (Ihsan et al.) & 2024 & $\mathcal{O}(|L_w|)$ Sub-linear & Yes & Heuristic & No & Tunable & No & No \\
+VisioLock & 2026 & $\mathcal{O}(1)$ Audio-Domain & Static & N/A & N/A & N/A & Yes (Client) & Device-Bound \\
+\textbf{VisioCrypt (Ours)} & \textbf{2026} & $\mathbf{\mathcal{O}(|L_w|)}$ \textbf{Sub-linear} & \textbf{Yes} & \textbf{Yes} & \textbf{Type-II} & \textbf{Yes (Power-of-Two)} & \textbf{Yes (Active RAM Wipe)} & \textbf{ARM TrustZone} \\ \bottomrule
+\end{tabular}
+\end{table*}
+\end{document}
