@@ -258,5 +258,29 @@ void main() {
       expect(searchResults.contains('dummy_report.txt'), true);
       expect(searchResults.any((entry) => entry.startsWith('__DUMMY_MATCH_')), false);
     });
+
+    test('Volume-Hiding padding correctly handles result sets exceeding 32 entries', () {
+      // 0 entries -> floor 4
+      expect(SseEngine.computePaddedCapacity(0), 4);
+      // 3 entries -> floor 4
+      expect(SseEngine.computePaddedCapacity(3), 4);
+      // 5 entries -> 8
+      expect(SseEngine.computePaddedCapacity(5), 8);
+      // 33 entries -> 64
+      expect(SseEngine.computePaddedCapacity(33), 64);
+      // 65 entries -> 128
+      expect(SseEngine.computePaddedCapacity(65), 128);
+      // 300 entries -> 512
+      expect(SseEngine.computePaddedCapacity(300), 512);
+      // 2500 entries -> 4096
+      expect(SseEngine.computePaddedCapacity(2500), 4096);
+      // 5000 entries (exceeds single bucket 4096) -> multi-bucket chunking 8192
+      expect(SseEngine.computePaddedCapacity(5000), 8192);
+
+      final mockList35 = List.generate(35, (i) => 'doc_$i.txt');
+      final padded35 = SseEngine.padFileList(mockList35);
+      expect(padded35.length, 64);
+      expect(padded35.where((doc) => !doc.startsWith('__DUMMY_MATCH_')).length, 35);
+    });
   });
 }

@@ -201,15 +201,29 @@ class SseEngine {
     bytes.fillRange(0, bytes.length, 0);
   }
 
-  /// Power-of-two volume-hiding padding function (Phi)
-  static List<String> padFileList(List<String> files) {
-    final cleanList = files.where((name) => !name.startsWith('__DUMMY_MATCH_')).toList();
-    int len = cleanList.length;
-    int targetLen = 4;
-    while (targetLen < len && targetLen < 128) {
-      targetLen *= 2;
+  /// Maximum single-bucket capacity before multi-bucket pagination kicks in
+  static const int maxSingleBucketSize = 4096;
+  static const int minBucketFloor = 4;
+
+  /// Computes the defensible padded target capacity for a given result set size
+  static int computePaddedCapacity(int len, {int maxBucket = maxSingleBucketSize}) {
+    if (len <= minBucketFloor) return minBucketFloor;
+    if (len >= maxBucket) {
+      // Multi-bucket chunking: round up to nearest multiple of maxBucket
+      return ((len + maxBucket - 1) ~/ maxBucket) * maxBucket;
     }
-    if (targetLen < len) targetLen = len;
+    int target = minBucketFloor;
+    while (target < len && target < maxBucket) {
+      target *= 2;
+    }
+    return target;
+  }
+
+  /// Multi-tier volume-hiding padding function (Phi) supporting arbitrary result counts
+  static List<String> padFileList(List<String> files, {int maxBucket = maxSingleBucketSize}) {
+    final cleanList = files.where((name) => !name.startsWith('__DUMMY_MATCH_')).toList();
+    final len = cleanList.length;
+    final targetLen = computePaddedCapacity(len, maxBucket: maxBucket);
 
     final padded = List<String>.from(cleanList);
     final rand = Random.secure();

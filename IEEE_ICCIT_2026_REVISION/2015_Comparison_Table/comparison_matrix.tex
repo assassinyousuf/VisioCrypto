@@ -1,0 +1,25 @@
+\begin{table*}[t]
+\centering
+\caption{Qualitative Comparison of Searchable Symmetric Encryption (SSE) Schemes Across Cryptographic and Mobile Dimensions}
+\label{tab:comparison}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Scheme} & \textbf{Search Complexity} & \textbf{Update Complexity} & \textbf{Forward Privacy} & \textbf{Backward Privacy} & \textbf{Volume Hiding} & \textbf{Result-Size Leakage} & \textbf{TEE Dependency} & \textbf{Mobile Suitability} \\
+\midrule
+Song et al. (SWP00) \cite{song2000} & $O(N)$ & $O(1)$ & No & No & No & Exact $|R(w)|$ & None & Poor (High battery drain) \\
+Curtmola et al. (CGKO06) \cite{curtmola2006} & $O(|R(w)|)$ & Static (No updates) & N/A & N/A & No & Exact $|R(w)|$ & None & Moderate (Static only) \\
+Kamara et al. (KPR12) \cite{kamara2012} & $O(|R(w)|)$ & $O(d_w)$ & No & No & No & Exact $|R(w)|$ & None & Moderate \\
+Cash et al. \cite{cash2013} & $O(|R(w)|)$ & Static / Append & No & No & No & Exact $|R(w)|$ & None & Good (Large scale) \\
+Bost (Sophos) \cite{bost2016sophos} & $O(|R(w)|)$ & $O(1)$ & \textbf{Yes} & No & No & Exact $|R(w)|$ & None & Good \\
+Bost et al. (Diana) \cite{bost2017diana} & $O(|R(w)|)$ & $O(1)$ & \textbf{Yes} & \textbf{Yes} (Type-II) & No & Exact $|R(w)|$ & None & Moderate \\
+Demertzis et al. (SEAL) \cite{demertzis2020seal} & $O(|R(w)| + \log N)$ & $O(\log N)$ & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & Binned $B_i$ & None & Moderate (Bandwidth intensive) \\
+Patel et al. (DVH) \cite{patel2023dvh} & $O(|R(w)|)$ & $O(\text{polylog } N)$ & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & Binned $O(\log N)$ & None & Low (Heavy client storage) \\
+Liu et al. \cite{li2021trustzone} & $O(|R(w)|)$ & $O(1)$ & \textbf{Yes} & \textbf{Yes} & No & Exact $|R(w)|$ & Server TEE & Poor (Requires cloud enclave) \\
+\midrule
+\textbf{VisioCrypt (Ours)} & $\mathbf{O(1) + O(\Phi(|R|))}$ & $\mathbf{O(1)}$ & \textbf{Yes} & \textbf{Yes} (Type-II) & \textbf{Yes} & Padded $\lceil \log_2 |R(w)| \rceil$ & \textbf{Client-Side Only} & \textbf{High} (Sub-ms, zeroization) \\
+\bottomrule
+\end{tabular}
+\end{table*}
