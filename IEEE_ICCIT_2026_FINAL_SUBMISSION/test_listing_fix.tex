@@ -64,6 +64,26 @@
 \renewcommand{\dbltopfraction}{0.9}
 \renewcommand{\textfraction}{0.1}
 
+\usepackage{eso-pic}
+
+\AddToShipoutPictureBG*{%
+  \AtPageUpperLeft{%
+    \put(54,-36){%
+      \parbox{\textwidth}{%
+        \fontsize{8pt}{10pt}\selectfont
+        2026 29th International Conference on Computer and Information Technology (ICCIT)\\
+        18-20 December 2026, Cox's Bazar, Bangladesh
+      }%
+    }%
+  }%
+  \AtPageLowerLeft{%
+    \put(54,36){%
+      \fontsize{8pt}{10pt}\selectfont
+      979-8-3195-0171-4/26/\$31.00 \copyright~2026 IEEE
+    }%
+  }%
+}
+
 \begin{document}
 
 \title{VisioCrypt: A TEE-Anchored Client-Side Searchable Encryption Scheme with Dynamic Volume-Hiding Padding for Mobile Cloud Storage}
