@@ -1,0 +1,314 @@
+{
+  "metadata": {
+    "date": "2026-11-21T02:46:50.676163",
+    "dart_version": "3.9.2 (stable) (Wed Aug 27 03:49:40 2025 -0700) on \"windows_x64\"",
+    "os": "windows",
+    "os_version": "\"Windows 11 Pro\" 10.0 (Build 26300)",
+    "trials_per_benchmark": 100,
+    "warmup_trials": 10
+  },
+  "benchmarks": {
+    "throughput_aes_ctr_mbps": {
+      "mean": 19.7296,
+      "std": 2.885,
+      "median": 19.4485,
+      "ci95_low": 19.1641,
+      "ci95_high": 20.295
+    },
+    "throughput_aes_gcm_mbps": {
+      "mean": 0.3598,
+      "std": 0.0248,
+      "median": 0.3562,
+      "ci95_low": 0.3549,
+      "ci95_high": 0.3646
+    },
+    "trapdoor_evals_per_ms": {
+      "mean": 93.8457,
+      "std": 18.5262,
+      "median": 95.2146,
+      "ci95_low": 90.2145,
+      "ci95_high": 97.4768
+    },
+    "bloom_filter_analysis": {
+      "bits_2048": {
+        "bitSize": 2048,
+        "inserted": 500,
+        "tested_negatives": 10000,
+        "false_positives_detected": 1511,
+        "empirical_fp_rate": 0.1511,
+        "theoretical_fp_rate": 0.1510280363986091,
+        "lookup_throughput_ops_per_ms": 126.58388080861783
+      },
+      "bits_4096": {
+        "bitSize": 4096,
+        "inserted": 500,
+        "tested_negatives": 10000,
+        "false_positives_detected": 242,
+        "empirical_fp_rate": 0.0242,
+        "theoretical_fp_rate": 0.022273457621504032,
+        "lookup_throughput_ops_per_ms": 121.4152157548384
+      },
+      "bits_8192": {
+        "bitSize": 8192,
+        "inserted": 500,
+        "tested_negatives": 10000,
+        "false_positives_detected": 21,
+        "empirical_fp_rate": 0.0021,
+        "theoretical_fp_rate": 0.0022019859458547483,
+        "lookup_throughput_ops_per_ms": 110.87826675093416
+      },
+      "bits_16384": {
+        "bitSize": 16384,
+        "inserted": 500,
+        "tested_negatives": 10000,
+        "false_positives_detected": 4,
+        "empirical_fp_rate": 0.0004,
+        "theoretical_fp_rate": 0.0001743772190656104,
+        "lookup_throughput_ops_per_ms": 104.48774881145187
+      }
+    },
+    "padding_policy": {
+      "count_1": {
+        "raw_count": 1,
+        "padded_capacity": 4,
+        "dummy_entries": 3,
+        "overhead_percentage": 300.0,
+        "volume_bucket_bits": 2
+      },
+      "count_2": {
+        "raw_count": 2,
+        "padded_capacity": 4,
+        "dummy_entries": 2,
+        "overhead_percentage": 100.0,
+        "volume_bucket_bits": 2
+      },
+      "count_3": {
+        "raw_count": 3,
+        "padded_capacity": 4,
+        "dummy_entries": 1,
+        "overhead_percentage": 33.33333333333333,
+        "volume_bucket_bits": 2
+      },
+      "count_4": {
+        "raw_count": 4,
+        "padded_capacity": 4,
+        "dummy_entries": 0,
+        "overhead_percentage": 0.0,
+        "volume_bucket_bits": 2
+      },
+      "count_5": {
+        "raw_count": 5,
+        "padded_capacity": 8,
+        "dummy_entries": 3,
+        "overhead_percentage": 60.0,
+        "volume_bucket_bits": 3
+      },
+      "count_8": {
+        "raw_count": 8,
+        "padded_capacity": 8,
+        "dummy_entries": 0,
+        "overhead_percentage": 0.0,
+        "volume_bucket_bits": 3
+      },
+      "count_9": {
+        "raw_count": 9,
+        "padded_capacity": 16,
+        "dummy_entries": 7,
+        "overhead_percentage": 77.77777777777779,
+        "volume_bucket_bits": 4
+      },
+      "count_16": {
+        "raw_count": 16,
+        "padded_capacity": 16,
+        "dummy_entries": 0,
+        "overhead_percentage": 0.0,
+        "volume_bucket_bits": 4
+      },
+      "count_17": {
+        "raw_count": 17,
+        "padded_capacity": 32,
+        "dummy_entries": 15,
+        "overhead_percentage": 88.23529411764706,
+        "volume_bucket_bits": 5
+      },
+      "count_32": {
+        "raw_count": 32,
+        "padded_capacity": 32,
+        "dummy_entries": 0,
+        "overhead_percentage": 0.0,
+        "volume_bucket_bits": 5
+      },
+      "count_33": {
+        "raw_count": 33,
+        "padded_capacity": 64,
+        "dummy_entries": 31,
+        "overhead_percentage": 93.93939393939394,
+        "volume_bucket_bits": 6
+      },
+      "count_64": {
+        "raw_count": 64,
+        "padded_capacity": 64,
+        "dummy_entries": 0,
+        "overhead_percentage": 0.0,
+        "volume_bucket_bits": 6
+      },
+      "count_65": {
+        "raw_count": 65,
+        "padded_capacity": 128,
+        "dummy_entries": 63,
+        "overhead_percentage": 96.92307692307692,
+        "volume_bucket_bits": 7
+      },
+      "count_100": {
+        "raw_count": 100,
+        "padded_capacity": 128,
+        "dummy_entries": 28,
+        "overhead_percentage": 28.000000000000004,
+        "volume_bucket_bits": 7
+      },
+      "count_128": {
+        "raw_count": 128,
+        "padded_capacity": 128,
+        "dummy_entries": 0,
+        "overhead_percentage": 0.0,
+        "volume_bucket_bits": 7
+      },
+      "count_129": {
+        "raw_count": 129,
+        "padded_capacity": 256,
+        "dummy_entries": 127,
+        "overhead_percentage": 98.44961240310077,
+        "volume_bucket_bits": 8
+      },
+      "count_256": {
+        "raw_count": 256,
+        "padded_capacity": 256,
+        "dummy_entries": 0,
+        "overhead_percentage": 0.0,
+        "volume_bucket_bits": 8
+      },
+      "count_257": {
+        "raw_count": 257,
+        "padded_capacity": 512,
+        "dummy_entries": 255,
+        "overhead_percentage": 99.22178988326849,
+        "volume_bucket_bits": 9
+      },
+      "count_500": {
+        "raw_count": 500,
+        "padded_capacity": 512,
+        "dummy_entries": 12,
+        "overhead_percentage": 2.4,
+        "volume_bucket_bits": 9
+      },
+      "count_512": {
+        "raw_count": 512,
+        "padded_capacity": 512,
+        "dummy_entries": 0,
+        "overhead_percentage": 0.0,
+        "volume_bucket_bits": 9
+      },
+      "count_513": {
+        "raw_count": 513,
+        "padded_capacity": 1024,
+        "dummy_entries": 511,
+        "overhead_percentage": 99.61013645224172,
+        "volume_bucket_bits": 10
+      },
+      "count_1000": {
+        "raw_count": 1000,
+        "padded_capacity": 1024,
+        "dummy_entries": 24,
+        "overhead_percentage": 2.4,
+        "volume_bucket_bits": 10
+      }
+    },
+    "index_scaling": {
+      "keywords_100": {
+        "keyword_count": 100,
+        "build_time_ms": {
+          "mean": 39.812,
+          "std": 10.9154,
+          "median": 34.251,
+          "ci95_low": 30.2442,
+          "ci95_high": 49.3798
+        },
+        "search_latency_ms": {
+          "mean": 0.5728,
+          "std": 1.4906,
+          "median": 0.246,
+          "ci95_low": 0.1596,
+          "ci95_high": 0.9859
+        }
+      },
+      "keywords_500": {
+        "keyword_count": 500,
+        "build_time_ms": {
+          "mean": 139.766,
+          "std": 25.2714,
+          "median": 125.306,
+          "ci95_low": 117.6147,
+          "ci95_high": 161.9173
+        },
+        "search_latency_ms": {
+          "mean": 0.4466,
+          "std": 0.2947,
+          "median": 0.3195,
+          "ci95_low": 0.3649,
+          "ci95_high": 0.5283
+        }
+      },
+      "keywords_1000": {
+        "keyword_count": 1000,
+        "build_time_ms": {
+          "mean": 300.7178,
+          "std": 52.3994,
+          "median": 287.006,
+          "ci95_low": 254.7877,
+          "ci95_high": 346.6479
+        },
+        "search_latency_ms": {
+          "mean": 0.3304,
+          "std": 0.255,
+          "median": 0.2275,
+          "ci95_low": 0.2597,
+          "ci95_high": 0.4011
+        }
+      },
+      "keywords_2500": {
+        "keyword_count": 2500,
+        "build_time_ms": {
+          "mean": 700.1836,
+          "std": 57.3299,
+          "median": 713.263,
+          "ci95_low": 649.9318,
+          "ci95_high": 750.4354
+        },
+        "search_latency_ms": {
+          "mean": 0.2131,
+          "std": 0.0277,
+          "median": 0.205,
+          "ci95_low": 0.2054,
+          "ci95_high": 0.2208
+        }
+      },
+      "keywords_5000": {
+        "keyword_count": 5000,
+        "build_time_ms": {
+          "mean": 1390.509,
+          "std": 92.8555,
+          "median": 1400.538,
+          "ci95_low": 1309.1175,
+          "ci95_high": 1471.9005
+        },
+        "search_latency_ms": {
+          "mean": 0.3314,
+          "std": 0.2238,
+          "median": 0.2495,
+          "ci95_low": 0.2694,
+          "ci95_high": 0.3935
+        }
+      }
+    }
+  }
+}

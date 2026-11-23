@@ -6,6 +6,8 @@ import 'package:crypto/crypto.dart';
 import 'package:convert/convert.dart';
 import 'package:pointycastle/export.dart' hide Digest;
 import 'hkdf.dart';
+import 'deletion_ledger.dart';
+export 'deletion_ledger.dart';
 
 /// Lightweight Bloom Filter for O(1) membership testing and fast deletion filtering
 class SseBloomFilter {
@@ -160,10 +162,14 @@ class SseEngine {
     final kSearch = hkdf.expand(prk, utf8.encode('VisioCrypt-Search-Key'), 32);
     final kIndexVal = hkdf.expand(prk, utf8.encode('VisioCrypt-IndexVal-Key'), 32);
     final kUpdate = hkdf.expand(prk, utf8.encode('VisioCrypt-Update-Key'), 32);
+    final kLedgerEnc = hkdf.expand(prk, utf8.encode('VisioCrypt-LedgerEnc-Key'), 32);
+    final kLedgerAuth = hkdf.expand(prk, utf8.encode('VisioCrypt-LedgerAuth-Key'), 32);
     return {
       'kSearch': kSearch,
       'kIndexVal': kIndexVal,
       'kUpdate': kUpdate,
+      'kLedgerEnc': kLedgerEnc,
+      'kLedgerAuth': kLedgerAuth,
     };
   }
 
@@ -267,6 +273,8 @@ class SseEngine {
     _zeroize(kSearch);
     _zeroize(kIndexVal);
     _zeroize(sseKeys['kUpdate']!);
+    _zeroize(sseKeys['kLedgerEnc']!);
+    _zeroize(sseKeys['kLedgerAuth']!);
   }
 
   /// Performs dynamic document addition with incremental delta logging (Forward Private)
@@ -323,14 +331,51 @@ class SseEngine {
     _zeroize(kSearch);
     _zeroize(kIndexVal);
     _zeroize(sseKeys['kUpdate']!);
+    _zeroize(sseKeys['kLedgerEnc']!);
+    _zeroize(sseKeys['kLedgerAuth']!);
   }
 
-  /// Searches the encrypted index database with Bloom filter-assisted deletion filtering
+  /// Authoritatively deletes a document by recording its tombstone in the AuthoritativeDeletionLedger
+  /// and atomically persisting the encrypted ledger to disk if [ledgerFile] is provided.
+  static Future<void> deleteDocument({
+    required AuthoritativeDeletionLedger ledger,
+    required String documentName,
+    required Set<String> keywords,
+    required Uint8List masterKey,
+    required Uint8List salt,
+    File? ledgerFile,
+    int? timestamp,
+  }) async {
+    final sseKeys = deriveSseKeys(masterKey, salt);
+    final kLedgerEnc = sseKeys['kLedgerEnc']!;
+    final kLedgerAuth = sseKeys['kLedgerAuth']!;
+
+    ledger.markDeleted(
+      docId: documentName,
+      keywords: keywords,
+      kAuth: kLedgerAuth,
+      timestamp: timestamp,
+    );
+
+    if (ledgerFile != null) {
+      await ledger.saveToFile(ledgerFile, kLedgerEnc, kLedgerAuth);
+    }
+
+    _zeroize(kLedgerEnc);
+    _zeroize(kLedgerAuth);
+    _zeroize(sseKeys['kSearch']!);
+    _zeroize(sseKeys['kIndexVal']!);
+    _zeroize(sseKeys['kUpdate']!);
+  }
+
+  /// Searches the encrypted index database with Authoritative Deletion Ledger verification
+  /// (eliminating Bloom filter false exclusions) or fallback legacy Bloom filtering.
   static Future<List<String>> searchIndex({
     required File indexFile,
     required String keyword,
     required Uint8List masterKey,
     required Uint8List salt,
+    AuthoritativeDeletionLedger? deletionLedger,
     SseBloomFilter? deletionFilter,
   }) async {
     if (!await indexFile.exists()) return [];
@@ -347,7 +392,15 @@ class SseEngine {
       final rawList = List<String>.from(indexDb[trapdoor]);
       results = rawList.where((name) {
         if (name.startsWith('__DUMMY_MATCH_')) return false;
-        if (deletionFilter != null && deletionFilter.mightContain('$keyword::$name')) return false;
+
+        // Two-Tier Authoritative Deletion Check (Guarantees Zero False Exclusions)
+        if (deletionLedger != null) {
+          if (deletionLedger.isDeleted(name, keyword: keyword)) return false;
+        } else if (deletionFilter != null) {
+          // Legacy check: note that Bloom filter collisions may silently drop active candidates
+          if (deletionFilter.mightContain('$keyword::$name')) return false;
+        }
+
         return true;
       }).toList();
     }
@@ -356,6 +409,8 @@ class SseEngine {
     _zeroize(kSearch);
     _zeroize(kIndexVal);
     _zeroize(sseKeys['kUpdate']!);
+    _zeroize(sseKeys['kLedgerEnc']!);
+    _zeroize(sseKeys['kLedgerAuth']!);
 
     return results;
   }
